@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Illés Ákos\\Desktop\\Iskola PDF\\Szakdolgozat\\Kviz\\obj\\Debug\\net7.0\\scopedcss\\projectbundle\\Kviz.bundle.scp.css",
+      "PackagePath": "staticwebassets\\Kviz.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\Illés Ákos\\Desktop\\Iskola PDF\\Szakdolgozat\\Kviz\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.Kviz.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.Kviz.props",
+      "PackagePath": "build\\Kviz.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.Kviz.props",
+      "PackagePath": "buildMultiTargeting\\Kviz.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.Kviz.props",
+      "PackagePath": "buildTransitive\\Kviz.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

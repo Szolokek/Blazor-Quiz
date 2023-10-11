@@ -1,0 +1,34 @@
+﻿@page "/creator/editor"
+@layout Shared.CreatorMenuLayout
+
+<div class="question-container">
+    @for (int i = 0; i < @questionSize; i++)
+    {
+        <RadzenCard Style="width:50%">
+            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">TextArea with placeholder</RadzenText>
+            <RadzenTextArea Placeholder="Enter question here..." Change=@(args => OnChange(args)) class="w-100" />
+            <RadzenButton Variant="Variant.Outlined" Text="Add question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => AddAnswer())" />
+        </RadzenCard>
+    }
+</div>
+
+
+<RadzenButton Variant="Variant.Outlined" Text="Add question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => AddQuestion())" />
+
+@code {
+    List<string> Questions = new List<string>();
+    int questionSize = 1;
+    void OnChange(string args)
+    {
+
+    }
+    void AddQuestion()
+    {
+        questionSize++;
+    }
+    void AddAnswer()
+    {
+        
+    }
+
+}

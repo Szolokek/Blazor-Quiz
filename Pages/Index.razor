@@ -1,0 +1,64 @@
+﻿@page "/"
+@using Kviz.Model;
+@using Kviz.Services;
+@inject NavigationManager Navigation
+@inject IDataService dataService;
+
+<div class="page-class">
+    <div style="height: 80%;" class="button-div">
+        <RadzenButton class="rz-ripple" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToLogin()" />
+    </div>
+    
+    <div>
+        <RadzenLink Text="Create" class="rz-ripple" />
+        <span> your own quiz</span>
+    </div>
+    
+</div>
+
+<style>
+    .page-class {
+
+        height: 100%;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        
+    }
+    .button-div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    p {
+       
+    }
+</style>
+
+
+@code
+{
+    
+
+    List<User> users = null;
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitializedAsync();
+        users = await dataService.GetUsers();
+    }
+
+
+    void NavigateToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    async void Listaz()
+    {
+        users = await dataService.GetUsers();
+    }
+}

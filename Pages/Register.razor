@@ -1,0 +1,79 @@
+﻿@page "/register"
+@inject NavigationManager Navigation
+
+<div id="page-div">
+    <div class="login-div">
+        <div class="place-div">
+            <span class="label">Username:</span>
+            <RadzenTextBox Placeholder="Username" Change=@(args => OnUnChange(args, "TextBox with placeholder")) Style="width: 90%" />
+        </div>
+
+    </div>
+    <div class="login-div">
+        <div class="place-div">
+            <span class="label">Password:</span>
+            <RadzenPassword Placeholder="Password" Change=@(args => OnPwChange(args, "TextBox with placeholder")) Style="width: 90%;" />
+        </div>
+
+    </div>
+</div>
+<div class="buttons-div">
+    <RadzenButton Variant="Variant.Outlined" Text="Back" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(args => NavigateBack())" />
+    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Register" class="rz-ripple rz-color-secondary" Style="margin: 10px" />
+</div>
+
+
+<style>
+    #page-div {
+        height: 70%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+    }
+
+    .login-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+        width: 50%;
+    }
+
+    .place-div {
+    }
+
+    .buttons-div {
+        height: 30%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .label {
+        color: white;
+        font-size: 1.5rem;
+    }
+
+</style>
+
+@code {
+    void OnPwChange(string value, string name)
+    {
+        //TODO make validators
+    }
+
+    void OnUnChange(string value, string name)
+    {
+
+    }
+
+    void NavigateBack()
+    {
+        Navigation.NavigateTo("/login");
+        //TODO Megnézni van-e olyan parancs, ami tényleg az előző oldalra visz
+    }
+}
+

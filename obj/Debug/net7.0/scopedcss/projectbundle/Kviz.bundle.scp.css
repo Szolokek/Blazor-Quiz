@@ -1,0 +1,110 @@
+/* _content/Kviz/Pages/Creator/EditQuiz.razor.rz.scp.css */
+.question-container[b-rum0sd1l97] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+/* _content/Kviz/Pages/Index.razor.rz.scp.css */
+/* _content/Kviz/Pages/Login.razor.rz.scp.css */
+#body[b-2ftaeubgnr] {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}
+
+#login-div[b-2ftaeubgnr] {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+/* _content/Kviz/Shared/CreatorMenuLayout.razor.rz.scp.css */
+body[b-40ytdky6qm] {
+    margin: 0;
+}
+
+main[b-40ytdky6qm] {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+/* _content/Kviz/Shared/MainLayout.razor.rz.scp.css */
+body[b-ytuxtwjz31] {
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(45deg, #212130 0%, #39304A 70%);
+    height: 100%;
+}
+
+main[b-ytuxtwjz31] {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+/* _content/Kviz/Shared/Sidebar.razor.rz.scp.css */
+.navbar-toggler[b-o6wp7pxsee] {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.top-row[b-o6wp7pxsee] {
+    height: 3.5rem;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.navbar-brand[b-o6wp7pxsee] {
+    font-size: 1.1rem;
+}
+
+.oi[b-o6wp7pxsee] {
+    width: 2rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.nav-item[b-o6wp7pxsee] {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+    .nav-item:first-of-type[b-o6wp7pxsee] {
+        padding-top: 1rem;
+    }
+
+    .nav-item:last-of-type[b-o6wp7pxsee] {
+        padding-bottom: 1rem;
+    }
+
+    .nav-item[b-o6wp7pxsee]  a {
+        color: #d7d7d7;
+        border-radius: 4px;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+    }
+
+        .nav-item[b-o6wp7pxsee]  a.active {
+            background-color: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        .nav-item[b-o6wp7pxsee]  a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+@media (min-width: 641px) {
+    .navbar-toggler[b-o6wp7pxsee] {
+        display: none;
+    }
+
+    .collapse[b-o6wp7pxsee] {
+        /* Never collapse the sidebar for wide screens */
+        display: block;
+    }
+
+    .nav-scrollable[b-o6wp7pxsee] {
+        /* Allow sidebar to scroll for tall menus */
+        height: calc(100vh - 3.5rem);
+        overflow-y: auto;
+    }
+}

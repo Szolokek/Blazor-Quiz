@@ -1,0 +1,69 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Kviz
+build_property.RootNamespace = Kviz
+build_property.ProjectDir = C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Creator/CreatorMenuPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRvclxDcmVhdG9yTWVudVBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Editor.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRWRpdG9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVnaXN0ZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Creator/EditQuiz.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRvclxFZGl0UXVpei5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-rum0sd1l97
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-avxv82e1dy
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-2ftaeubgnr
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Shared/CreatorMenuLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENyZWF0b3JNZW51TGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-40ytdky6qm
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-ytuxtwjz31
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Shared/Sidebar.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFNpZGViYXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-o6wp7pxsee
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
