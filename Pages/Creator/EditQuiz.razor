@@ -1,34 +1,122 @@
-﻿@page "/creator/editor"
+﻿@using Kviz.Model
+@using Kviz.Migrations.Tables
+@using Kviz.Data
+@using Kviz.Services
+@page "/creator/editor/{quizIdParam}"
+@page "/creator/editor"
 @layout Shared.CreatorMenuLayout
+@inject IDataService dataService
 
-<div class="question-container">
-    @for (int i = 0; i < @questionSize; i++)
-    {
-        <RadzenCard Style="width:50%">
-            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">TextArea with placeholder</RadzenText>
-            <RadzenTextArea Placeholder="Enter question here..." Change=@(args => OnChange(args)) class="w-100" />
-            <RadzenButton Variant="Variant.Outlined" Text="Add question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => AddAnswer())" />
-        </RadzenCard>
-    }
-</div>
+@if(@quizIdParam != null && quiz == null)
+{
+    <h3>Loading...</h3>
+}
+else
+{
+    <div class="question-container">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
+            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Quiz Name:</RadzenText>
+            <RadzenTextBox Placeholder="Quiz Name" Change=@(args => OnChange(args)) class="w-100" @bind-Value="quiz.Name" />
+        </RadzenStack>
+        @foreach (Question question in quiz.Questions)
+        {
+            <RadzenCard Style="width:70%">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
+                    <div style="width: 30%;">
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Question:</RadzenText>
+                        <RadzenTextArea Placeholder="Enter question here..." Change=@(args => OnChange(args)) class="w-100" @bind-Value="question.Text" />
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Timer:</RadzenText> <!--TODO timer lehessen ki-be kapcsolható, mondjuk egy checkboxxal->
+                        <RadzenTextBox Placeholder="Time..." Change=@(args => OnChange(args)) class="w-100" type="number" @bind-Value=@question.TimeAsString />
+                        <RadzenDropDown @bind-Value=@question.Type Data=@Enum.GetValues(typeof(QuestionType)) />
+                    </div>
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" JustifyContent="JustifyContent.Center" Style="width: 60%;">
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Answers:</RadzenText>
+                        @foreach (Answer answer in question.Answers)
+                        {
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Start">
+                                <RadzenTextBox Placeholder="Answer..." Change=@(args => OnChange(args)) class="w-100" @bind-Value="answer.Text" />
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Correct:</RadzenText>
+                                <RadzenCheckBox @bind-Value=@answer.Correct Name="CheckBox1" />
+                                <RadzenButton Click=@(args => OnDeleteAnswer(question, answer)) Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+                            </RadzenStack>
+                        }
+
+                        <RadzenButton Variant="Variant.Outlined" Text="Add Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => AddAnswer(question))" />
+
+                    </RadzenStack>
+                    <div class="clear" style="width: 10%">
+                        <RadzenButton Click=@(() => OnDeleteQuestion(question)) Icon="clear" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+                    </div>
+
+                </RadzenStack>
+            </RadzenCard>
+        }
+    </div>
 
 
-<RadzenButton Variant="Variant.Outlined" Text="Add question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => AddQuestion())" />
+    <RadzenButton Variant="Variant.Outlined" Text="Add question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => AddQuestion())" />
+    <RadzenButton Variant="Variant.Outlined" Text="Save" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => SaveQuiz())" />
+}
+
 
 @code {
-    List<string> Questions = new List<string>();
-    int questionSize = 1;
-    void OnChange(string args)
-    {
+    [Parameter]
+    public string? quizIdParam { get; set; }
+    QuestionType questionType;
 
-    }
-    void AddQuestion()
+    protected override async Task OnParametersSetAsync()
     {
-        questionSize++;
-    }
-    void AddAnswer()
-    {
+        if(quizIdParam == null)
+        {
+            quiz.Questions.Add(new Question());
+        }
+        else
+        {
+            int quizId = Int32.Parse(quizIdParam);
+
+            quiz = await dataService.GetQuizByIdAsync(quizId);
+            await base.OnParametersSetAsync();
+        }
         
     }
 
+    Quiz quiz = new Quiz();
+
+    void OnChange(string args)
+    {
+
+        Console.WriteLine(quiz.Questions[0].Text);
+    }
+    void AddQuestion()
+    {
+        quiz.Questions.Add(new Question());
+    }
+    void AddAnswer(Question question)
+    {
+        question.Answers.Add(new Answer());
+    }
+
+
+
+    void SaveQuiz()
+    {
+        if(quizIdParam != null)
+        {
+            dataService.UpdateQuiz(quiz, Int32.Parse(quizIdParam));
+        }
+        else
+        {
+            dataService.CreateNewQuiz(quiz);
+        }
+    }
+
+    void OnDeleteAnswer(Question q, Answer a)
+    {
+        q.Answers.Remove(a);
+    }
+    void OnDeleteQuestion(Question q)
+    {
+        quiz.Questions.Remove(q);
+    }
 }
+

@@ -1,64 +1,33 @@
 ﻿@page "/"
 @using Kviz.Model;
 @using Kviz.Services;
+@using Kviz.Migrations.Tables;
 @inject NavigationManager Navigation
-@inject IDataService dataService;
 
 <div class="page-class">
     <div style="height: 80%;" class="button-div">
-        <RadzenButton class="rz-ripple" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToLogin()" />
+        <RadzenTextBox Placeholder="Session" Style="width: 90%" @bind-Value="@Session"/>
+        <RadzenTextBox Placeholder="Nickname" Style="width: 90%" @bind-Value="@Nickname"/>
+        <RadzenButton class="rz-ripple" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToNickName()" />
     </div>
     
     <div>
-        <RadzenLink Text="Create" class="rz-ripple" />
+        <RadzenLink Text="Create" class="rz-ripple" Path="login"/>
         <span> your own quiz</span>
     </div>
     
 </div>
 
-<style>
-    .page-class {
-
-        height: 100%;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        
-    }
-    .button-div{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    p {
-       
-    }
-</style>
 
 
 @code
 {
+    string Session = "1";
+    string Nickname = "Joe";
+    void NavigateToNickName()
+    {
+        Navigation.NavigateTo($"/game/{Session}/{Nickname}");
+    }
+
     
-
-    List<User> users = null;
-    protected override async Task OnInitializedAsync()
-    {
-        base.OnInitializedAsync();
-        users = await dataService.GetUsers();
-    }
-
-
-    void NavigateToLogin()
-    {
-        Navigation.NavigateTo("/login");
-    }
-
-    async void Listaz()
-    {
-        users = await dataService.GetUsers();
-    }
 }

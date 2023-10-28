@@ -1,4 +1,4 @@
-﻿using Kviz.Model;
+﻿using Kviz.Migrations.Tables;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kviz.Data
@@ -15,6 +15,11 @@ namespace Kviz.Data
         {
             optionsBuilder.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
         }
-        public DbSet<User> Users { get; set; }
+        public DbSet<UserTable> Users { get; set; }
+        public DbSet<QuizTable> Quizes { get; set; }
+        public DbSet<SessionTable> Sessions { get; set; }
+        public DbSet<QuestionTable> Questions { get; set; }
+        public DbSet<AnswerTable> Answers { get; set; }
+        public DbSet<HistoryTable> History { get; set; }
     }
 }

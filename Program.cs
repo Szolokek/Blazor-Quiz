@@ -1,17 +1,17 @@
 using Kviz.Data;
 using Kviz.Services;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Kviz.Migrations.Tables;
 
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddDbContext<DataContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddDbContext<DataContext>(options => options.UseSqlite(connectionString), ServiceLifetime.Scoped);
 builder.Services.AddScoped<IDataService, DataService>();
+builder.Services.AddSingleton<QuizService>();
+builder.Services.AddHostedService<InitializationService>();
 
 var app = builder.Build();
 
@@ -29,6 +29,7 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
 
 
 app.Run();

@@ -1,0 +1,146 @@
+﻿@using Kviz.Shared
+@using Kviz.Services
+@using Kviz.Model
+
+@page "/game/{sessionIdString}/{nickname}"
+@layout MainLayout
+@inject QuizService quizService
+@implements IDisposable
+
+@if (UniqueName)
+{
+    @if (!quizService.Sessions[sessionId].StartGame)
+    {
+        <h3>Waiting for host to start the game...</h3>
+    }
+    else
+    {
+        @if (!Closed)
+        {
+            @if (!quizService.Sessions[sessionId].Users[nickname])
+            {
+                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].CurrentQuestion class="rz-color-white"></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].TimeAsString class="rz-color-white"></RadzenText>
+
+                    </RadzenStack>
+                    @foreach (string answer in quizService.Sessions[sessionId].CurrentAnswers)
+                    {
+                        <RadzenButton Variant="Variant.Outlined" Text="@answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnAnswerSelect(answer))" />
+                    }
+                </RadzenStack>
+            }
+            else
+            {
+                @foreach (KeyValuePair<string, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
+                {
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key></RadzenText>
+                    @foreach (string user in entry.Value)
+                    {
+                        <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@user></RadzenText>
+                    }
+                }
+                @*<RadzenChart>
+                <RadzenColumnSeries Data="@quizService.Sessions[Int32.Parse(sessionId)].UserAnswers." TItem="" CategoryProperty="Quarter" Title="Answers" LineType="LineType.Dashed" ValueProperty="Revenue">
+                </RadzenColumnSeries>
+                <RadzenColumnOptions Radius="5" />
+                <RadzenValueAxis>
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Number of votes" />
+                </RadzenValueAxis>
+            </RadzenChart>*@
+            }
+            
+        }
+        else
+        {
+            @foreach (KeyValuePair<string, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
+            {
+                @if (quizService.Sessions[sessionId].CorrectAnswers.Contains(entry.Key))
+                {
+                    <RadzenText class="rz-color-success-light" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key></RadzenText>
+                }
+                else
+                {
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key></RadzenText>
+                }
+                @foreach (string user in entry.Value)
+                {
+                    <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@user></RadzenText>
+                }
+            }
+        }
+        
+
+    }
+}
+else
+{
+    <h3>Your nickname must be unique</h3>
+}
+
+
+
+@code {
+    [Parameter]
+    public string? sessionIdString { get; set; }
+    [Parameter]
+    public string? nickname { get; set; }
+    public int sessionId;
+    bool ShowGame = true;
+    bool Closed = false;
+    bool UniqueName = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        sessionId = Int32.Parse(sessionIdString);
+        if (!quizService.Sessions[sessionId].Users.ContainsKey(nickname))
+        {
+            UniqueName = true;
+            quizService.Sessions[sessionId].Users.Add(nickname,false);
+        }
+
+        quizService.Sessions[sessionId].UpdateEvent += async () => await InvokeAsync(() => Update());
+        quizService.Sessions[sessionId].NextQuestionEvent += async () => await InvokeAsync(() => NextQuestion());
+        quizService.Sessions[sessionId].RevealAnswerEvent += async () => await InvokeAsync(() => RevealAnswer());
+        quizService.Sessions[sessionId].StartGameEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        quizService.Sessions[sessionId].QuestionClosedEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        quizService.Sessions[sessionId].TimerCountEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        await base.OnInitializedAsync();
+    }
+
+    void OnAnswerSelect(string answer)
+    {
+        quizService.Sessions[sessionId].AddToUserAnswers(answer, nickname);
+        quizService.Sessions[sessionId].Users[nickname] = true;
+
+    }
+    void Update()
+    {
+        if (quizService.Sessions[sessionId].Users[nickname])
+        {
+            this.StateHasChanged();
+        }
+    }
+    void NextQuestion()
+    {
+        quizService.Sessions[sessionId].Users[nickname] = false;
+        Closed = false;
+        this.StateHasChanged();
+    }
+    void RevealAnswer()
+    {
+        Closed = true;
+        this.StateHasChanged();
+    }
+    public void Dispose()
+    {
+        if (UniqueName)
+        {
+            quizService.Sessions[sessionId].Users.Remove(nickname);
+        }
+    }
+
+}

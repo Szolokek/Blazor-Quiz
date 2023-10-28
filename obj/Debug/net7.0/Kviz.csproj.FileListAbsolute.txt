@@ -92,3 +92,4 @@ C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scop
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Shared\Sidebar.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Shared\CreatorMenuLayout.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\Creator\EditQuiz.razor.rz.scp.css
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\Creator\CreatorMenuPage.razor.rz.scp.css

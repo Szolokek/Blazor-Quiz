@@ -20,12 +20,20 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Creator/CreatorMenuPage.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRvclxDcmVhdG9yTWVudVBhZ2UucmF6b3I=
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Creator/CreatorGamePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRvclxDcmVhdG9yR2FtZVBhZ2UucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Editor.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRWRpdG9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Game/GamePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR2FtZVxHYW1lUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Game/Lobby.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR2FtZVxMb2JieS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Register.razor]
@@ -39,6 +47,10 @@ build_metadata.AdditionalFiles.CssScope =
 [C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Creator/CreatorMenuPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRvclxDcmVhdG9yTWVudVBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-kkw0qp0aiy
 
 [C:/Users/Illés Ákos/Desktop/Iskola PDF/Szakdolgozat/Kviz/Pages/Creator/EditQuiz.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ3JlYXRvclxFZGl0UXVpei5yYXpvcg==

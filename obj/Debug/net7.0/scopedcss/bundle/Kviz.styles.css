@@ -1,3 +1,10 @@
+/* _content/Kviz/Pages/Creator/CreatorMenuPage.razor.rz.scp.css */
+#buttons-div[b-kkw0qp0aiy] {
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 /* _content/Kviz/Pages/Creator/EditQuiz.razor.rz.scp.css */
 .question-container[b-rum0sd1l97] {
     display: flex;
@@ -5,7 +12,31 @@
     align-items: center;
     width: 100%;
 }
+
+.clear[b-rum0sd1l97] {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    width: auto;
+    height: auto;
+}
 /* _content/Kviz/Pages/Index.razor.rz.scp.css */
+.page-class[b-avxv82e1dy] {
+    height: 100%;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-div[b-avxv82e1dy] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 /* _content/Kviz/Pages/Login.razor.rz.scp.css */
 #body[b-2ftaeubgnr] {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);

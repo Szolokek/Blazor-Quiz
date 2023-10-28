@@ -1,0 +1,58 @@
+﻿@using Kviz.Shared
+@using Kviz.Services
+@using Kviz.Model
+@using Kviz.Migrations.Tables
+
+@page "/creator/game/{sessionIdString}"
+@layout MainLayout
+@inject QuizService quizService
+@inject IDataService dataService
+
+@if(quiz != null)
+{
+    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].CurrentQuestion></RadzenText>
+    @foreach (string answer in quizService.Sessions[sessionId].CurrentAnswers)
+    {
+        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@answer></RadzenText>
+    }
+
+}
+<RadzenButton Variant="Variant.Outlined" Text="Start Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnStartQuiz())" />
+<RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswer())" />
+<RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestion())" />
+
+@code {
+    [Parameter]
+    public string? sessionIdString { get; set; }
+    public int sessionId;
+    Quiz? quiz = null;
+    int questionIndex = 0;
+
+
+    protected override void OnInitialized()
+    {
+        sessionId = Int32.Parse(sessionIdString);
+        quizService.Sessions[sessionId].TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswer());
+        base.OnInitialized();
+    }
+
+    void OnRevealAnswer()
+    {
+        List<string> correctAnswers =  quiz.Questions[questionIndex].GetCorrectAnswersAsString();
+        quizService.Sessions[sessionId].RevealAnswer(correctAnswers);
+
+    }
+    void OnNextQuestion()
+    {
+        questionIndex++;
+        //TODO make Next Question button and Reveal Answer button Disabled when quiz is null
+        quizService.Sessions[sessionId].NextQuestion(quiz.Questions[questionIndex].Text, quiz.Questions[questionIndex].GetAnswersAsString(), quiz.Questions[questionIndex].Time);
+    }
+    async void OnStartQuiz()
+    {
+        SessionTable sessionTable = await dataService.GetSessionById(sessionId);
+        quiz = await dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
+        quizService.Sessions[sessionId].StartGameFirstQuestion(quiz.Questions[questionIndex].Text, quiz.Questions[questionIndex].GetAnswersAsString(), quiz.Questions[questionIndex].Time);
+        quizService.Sessions[sessionId].StartGame = true;
+    }
+}
