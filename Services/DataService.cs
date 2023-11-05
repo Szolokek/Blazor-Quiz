@@ -23,6 +23,7 @@ namespace Kviz.Services
         public async Task<List<QuizTable>> GetQuizes()
         {
             return await _context.Quizes.Where(q => q.User_Id == 1).ToListAsync();
+            //TODO make it so the param is a User.Id
         }
 
         public async void CreateNewQuiz(Quiz quiz)
@@ -139,6 +140,21 @@ namespace Kviz.Services
         {
             var session = await _context.Sessions.Where(s => s.Id == Id).SingleAsync();
             session.Date = DateTime.Now;
+        }
+
+        public async void SaveToHistory(Dictionary<Answer, List<string>> userAnswers, int questionId, int sessionId)
+        {
+            List<HistoryTable> historyList = new List<HistoryTable>();
+            foreach(KeyValuePair<Answer, List<string>> entry in userAnswers)
+            {
+                foreach(string nickname in entry.Value)
+                {
+                    HistoryTable history = new HistoryTable(sessionId, nickname, questionId, entry.Key.Id);
+                    historyList.Add(history);
+                }
+            }
+            await _context.History.AddRangeAsync(historyList);
+            await _context.SaveChangesAsync();
         }
 
     }

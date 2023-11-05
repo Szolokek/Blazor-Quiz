@@ -2,24 +2,68 @@
 @using Kviz.Services
 @using Kviz.Model
 @using Kviz.Migrations.Tables
+@using Microsoft.AspNetCore.Components.Authorization
 
 @page "/creator/game/{sessionIdString}"
 @layout MainLayout
 @inject QuizService quizService
 @inject IDataService dataService
+<AuthorizeView>
+    <Authorized>
+        @if (!@quizService.Sessions[sessionId].StartGame)
+        {
+            <RadzenButton Variant="Variant.Outlined" Text="Start Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnStartQuiz())" />
+        }
+        else
+        {
+            @if (quiz != null)
+            {
+                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text></RadzenText>
+                @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
+                {
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@answer.Text></RadzenText>
+                }
 
-@if(quiz != null)
-{
-    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].CurrentQuestion></RadzenText>
-    @foreach (string answer in quizService.Sessions[sessionId].CurrentAnswers)
-    {
-        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@answer></RadzenText>
-    }
-
-}
-<RadzenButton Variant="Variant.Outlined" Text="Start Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnStartQuiz())" />
-<RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswer())" />
-<RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestion())" />
+            }
+            <RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswer())" />
+            <RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestion())" />
+            @*@foreach (KeyValuePair<Answer, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
+            {
+                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
+                @foreach (string user in entry.Value)
+                {
+                    <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@user></RadzenText>
+                }
+            }
+            @*<RadzenChart>
+        <RadzenColumnSeries Data="@quizService.Sessions[Int32.Parse(sessionId)].UserAnswers." TItem="" CategoryProperty="Quarter" Title="Answers" LineType="LineType.Dashed" ValueProperty="Revenue">
+        </RadzenColumnSeries>
+        <RadzenColumnOptions Radius="5" />
+        <RadzenValueAxis>
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Number of votes" />
+        </RadzenValueAxis>
+        </RadzenChart>*@
+        @*}
+        @foreach (KeyValuePair<Answer, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
+        {
+            @if (entry.Key.Correct)
+            {
+                <RadzenText class="rz-color-success-light" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
+            }
+            else
+            {
+                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
+            }
+            @foreach (string user in entry.Value)
+            {
+                <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@user></RadzenText>
+            }
+        }*@
+        }
+       
+    </Authorized>
+</AuthorizeView>
 
 @code {
     [Parameter]
@@ -27,32 +71,31 @@
     public int sessionId;
     Quiz? quiz = null;
     int questionIndex = 0;
+    bool RevealAnswerButtonVisibility = true;
 
 
     protected override void OnInitialized()
     {
-        sessionId = Int32.Parse(sessionIdString);
+        sessionId = Int32.Parse(sessionIdString!);
         quizService.Sessions[sessionId].TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswer());
+        quizService.Sessions[sessionId].LeaderboardEvent += async () => await InvokeAsync(() => this.StateHasChanged());
         base.OnInitialized();
     }
 
     void OnRevealAnswer()
     {
-        List<string> correctAnswers =  quiz.Questions[questionIndex].GetCorrectAnswersAsString();
-        quizService.Sessions[sessionId].RevealAnswer(correctAnswers);
-
+        RevealAnswerButtonVisibility = false;
+        quizService.Sessions[sessionId].RevealAnswer();
     }
     void OnNextQuestion()
     {
-        questionIndex++;
-        //TODO make Next Question button and Reveal Answer button Disabled when quiz is null
-        quizService.Sessions[sessionId].NextQuestion(quiz.Questions[questionIndex].Text, quiz.Questions[questionIndex].GetAnswersAsString(), quiz.Questions[questionIndex].Time);
+        quizService.Sessions[sessionId].NextQuestion();
     }
     async void OnStartQuiz()
     {
         SessionTable sessionTable = await dataService.GetSessionById(sessionId);
         quiz = await dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
-        quizService.Sessions[sessionId].StartGameFirstQuestion(quiz.Questions[questionIndex].Text, quiz.Questions[questionIndex].GetAnswersAsString(), quiz.Questions[questionIndex].Time);
+        quizService.Sessions[sessionId].StartGameFirstQuestion();
         quizService.Sessions[sessionId].StartGame = true;
     }
 }

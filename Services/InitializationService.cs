@@ -1,4 +1,5 @@
-﻿using Kviz.Migrations.Tables;
+﻿using Kviz.Data;
+using Kviz.Migrations.Tables;
 
 namespace Kviz.Services
 {
@@ -21,7 +22,7 @@ namespace Kviz.Services
                 var sessions = dataService.GetSessions().Result;
                 foreach (SessionTable session in sessions)
                 {
-                    quizService.Sessions.Add(session.Id, new GameService());
+                    quizService.AddNewSession(session.Id);
                 }
             }
         }

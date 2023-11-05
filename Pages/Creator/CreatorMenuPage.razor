@@ -1,47 +1,54 @@
 ﻿@using Kviz.Services
 @using Kviz.Migrations.Tables
+@using Microsoft.AspNetCore.Components.Authorization
 @layout Shared.CreatorMenuLayout
 @page "/creator"
 @inject NavigationManager Navigation
 @inject IDataService dataService
 @inject QuizService quizService
-@if(@quizes == null)
-{
-    <h3>Loading...</h3>
-}
-else
-{
-    <div id="buttons-div">
-        <RadzenButton Variant="Variant.Outlined" Text="Create new Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => NavigateToEditor())" />
-        <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Create new account" class="rz-ripple rz-color-secondary" Style="margin: 10px" Click="(() => NavigateToEditor())" />
-    </div>
-    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
-        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Quizes:</RadzenText>
-            @foreach (QuizTable quiz in quizes)
-            {
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@quiz.Name"></RadzenText>
-                    <RadzenButton class="rz-ripple" Click=@(() => OnCreateSession(quiz.Id)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Create Session"/>
-                    <RadzenButton class="rz-ripple" Click=@(() => OnEditQuiz(quiz)) Icon="edit" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Text" />
-                    <RadzenButton class="rz-ripple" Click=@(() => OnDeleteQuiz(quiz)) Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+<AuthorizeView>
+    <Authorized>
+        @if (@quizes == null)
+        {
+            <h3>Loading...</h3>
+        }
+        else
+        {
+            <div id="buttons-div">
+                <RadzenButton Variant="Variant.Outlined" Text="Create new Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => NavigateToEditor())" />
+                <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Create new account" class="rz-ripple rz-color-secondary" Style="margin: 10px" Click="(() => NavigateToEditor())" />
+            </div>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
+                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Quizes:</RadzenText>
+                    @foreach (QuizTable quiz in quizes)
+                    {
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@quiz.Name"></RadzenText>
+                            <RadzenButton class="rz-ripple" Click=@(() => OnCreateSession(quiz.Id)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Create Session" />
+                            <RadzenButton class="rz-ripple" Click=@(() => OnEditQuiz(quiz)) Icon="edit" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Text" />
+                            <RadzenButton class="rz-ripple" Click=@(() => OnDeleteQuiz(quiz)) Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+                        </RadzenStack>
+                    }
                 </RadzenStack>
-            }
-        </RadzenStack>
-        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Quizes:</RadzenText>
-            @foreach (SessionTable session in sessions)
-            {
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@session.Id.ToString()"></RadzenText>
-                    <RadzenButton class="rz-ripple" Click=@(() => OnStartSession(session)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Start Session"/>
+                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Quizes:</RadzenText>
+                    @foreach (SessionTable session in sessions)
+                    {
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@session.Id.ToString()"></RadzenText>
+                            <RadzenButton class="rz-ripple" Click=@(() => OnStartSession(session)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Start Session" />
+                        </RadzenStack>
+                    }
                 </RadzenStack>
-            }
-        </RadzenStack>
 
 
-    </RadzenStack>
-}
+            </RadzenStack>
+        }
+    </Authorized>
+</AuthorizeView>
+
+
 
 
 
@@ -68,7 +75,7 @@ else
     {
         int id = dataService.CreateSession(Id).Result;
         sessions = await dataService.GetSessions();
-        quizService.Sessions.Add(id, new GameService());
+        //quizService.Sessions.Add(id, new GameService());
         //TODO make it so that the session is registered in the quizservice after creation.
 
     }

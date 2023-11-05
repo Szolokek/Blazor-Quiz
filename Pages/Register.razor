@@ -1,25 +1,31 @@
-﻿@page "/register"
+﻿@using Kviz.Model;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Kviz.Services;
+@page "/register"
 @inject NavigationManager Navigation
+@inject NavigationManager Navigation
+@inject IAccountService AccountService
+@inject IJSRuntime js
 
 <div id="page-div">
     <div class="login-div">
         <div class="place-div">
             <span class="label">Username:</span>
-            <RadzenTextBox Placeholder="Username" Change=@(args => OnUnChange(args, "TextBox with placeholder")) Style="width: 90%" />
+            <RadzenTextBox Placeholder="Username" Style="width: 90%" @bind-Value="RegisterModel.UserName" />
         </div>
 
     </div>
     <div class="login-div">
         <div class="place-div">
             <span class="label">Password:</span>
-            <RadzenPassword Placeholder="Password" Change=@(args => OnPwChange(args, "TextBox with placeholder")) Style="width: 90%;" />
+            <RadzenPassword Placeholder="Password" Style="width: 90%;" @bind-Value="RegisterModel.Password"  />
         </div>
 
     </div>
 </div>
 <div class="buttons-div">
     <RadzenButton Variant="Variant.Outlined" Text="Back" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(args => NavigateBack())" />
-    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Register" class="rz-ripple rz-color-secondary" Style="margin: 10px" />
+    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Register" class="rz-ripple rz-color-secondary" Style="margin: 10px" Click="(args => OnRegisterClickedAsync())" />
 </div>
 
 
@@ -60,14 +66,20 @@
 </style>
 
 @code {
-    void OnPwChange(string value, string name)
-    {
-        //TODO make validators
-    }
+    private User RegisterModel { get; set; } = new();
 
-    void OnUnChange(string value, string name)
+    async Task OnRegisterClickedAsync()
     {
-
+        var (flag, message) = await AccountService.RegisterAsync(RegisterModel);
+        if (flag)
+        {
+            await js.InvokeVoidAsync("alert", message);
+        }
+        else
+        {
+            await js.InvokeVoidAsync("alert", message);
+            return;
+        }
     }
 
     void NavigateBack()

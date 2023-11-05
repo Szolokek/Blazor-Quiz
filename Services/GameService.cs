@@ -1,38 +1,46 @@
 ﻿using Kviz.Data;
+using Kviz.Migrations.Tables;
+using Kviz.Migrations;
 using Kviz.Model;
 using System.Reflection.Metadata;
 using System.Timers;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kviz.Services
 {
     public class GameService
     {
+        private int sessionId;
+        public Quiz quiz;
+        public int questionIndex = 0;
         private bool startGame;
         private bool closed;
-        public bool StartGame { 
-            get 
-            { 
-                return startGame; 
-            } 
-            set 
-            { 
+        private bool leaderBoardView = false;
+        public bool StartGame
+        {
+            get
+            {
+                return startGame;
+            }
+            set
+            {
                 startGame = value;
                 StartGameEvent?.Invoke();
-            } }
+            }
+        }
 
         public bool Closed
         {
             get { return closed; }
-            set 
-            { 
+            set
+            {
                 closed = value;
                 QuestionClosedEvent?.Invoke();
             }
         }
 
-        public string CurrentQuestion { get; set; }
-        public List<string> CurrentAnswers { get; set; }
-        public List<string> CorrectAnswers { get; set; }
         public int Time { get; set; }
         public string TimeAsString
         {
@@ -45,16 +53,27 @@ namespace Kviz.Services
                 }
             }
         }
-        System.Timers.Timer timer;
+        System.Timers.Timer QuestionTimer;
+        System.Timers.Timer LeaderBoardTimer;
 
-        public Dictionary<string, int> UserPoints;
+        private Dictionary<string, int> userPoints;
+        public Dictionary<string, int> UserPoints { get; set; }
+        private Dictionary<string, Answer> submittedAnswers;
 
-        public Dictionary<string, bool> Users { get; set; }
-        public Dictionary<string, List<string>> UserAnswers { get; set; }
+        private List<string> users;
+        private Dictionary<Answer, List<string>> userAnswers;
+        public Dictionary<Answer, List<string>> UserAnswers { get; set; }
+        private List<string> didntAnswer;
 
-        public void AddToUserAnswers(string key, string value)
+
+        public void AddToUserAnswers(Answer key, string value)
         {
-            UserAnswers[key].Add(value);
+            userAnswers[key].Add(value);
+        }
+
+        public void AddToSubmittedAnswers(Answer key, string nickname)
+        {
+            submittedAnswers.Add(nickname, key);
             UpdateEvent?.Invoke();
         }
 
@@ -66,65 +85,210 @@ namespace Kviz.Services
         public event Func<Task> TimerCountEvent;
         public event Func<Task> QuestionClosedEvent;
         public event Func<Task> TimesUpEvent;
+        public event Func<Task> StateChangedEvent;
+        public event Func<Task> LeaderboardEvent;
 
-        public void NextQuestion(string question, List<string> answers, int time)
+
+        public Question GetCurrentQuestion()
         {
-            UserAnswers = new Dictionary<string, List<string>>();
-            CurrentQuestion = question;
-            CurrentAnswers = answers;
-            this.Time = time;
-            foreach(string a in answers)
-            {
-                UserAnswers.Add(a, new List<string>());
-            }
-
-            //Save answers to DB
-
-            NextQuestionEvent?.Invoke();
-            timer.Start();
+            return quiz.Questions[questionIndex];
+        }
+        public List<Answer> GetCurrentAnswers()
+        {
+            return quiz.Questions[questionIndex].Answers;
         }
 
-        public void StartGameFirstQuestion(string question, List<string> answers, int time)
+        private void SaveAnswersToDB()
         {
-            UserAnswers = new Dictionary<string, List<string>>();
-            CurrentQuestion = question;
-            CurrentAnswers = answers;
-            this.Time = time;
-            foreach (string a in answers)
-            {
-                UserAnswers.Add(a, new List<string>());
-            }
-            NextQuestionEvent?.Invoke();
-            timer.Start();
+            //TODO implement the new model with didntAnswer and make new tables for history
+            _dataService.SaveToHistory(userAnswers, quiz.Questions[questionIndex].Id, sessionId);
         }
 
-        public void RevealAnswer(List<string> correctAnswers)
+        public void NextQuestion()
         {
-            CorrectAnswers = correctAnswers;
+            SaveAnswersToDB();
+            questionIndex++;
+            LoadNextQuestion();
+            userAnswers.Clear();
+            submittedAnswers.Clear();
+            NextQuestionEvent?.Invoke();
+            QuestionTimer.Start();
+        }
+
+        public void CloseQuestion()
+        {
+            if (true)
+            {
+                leaderBoardView = true;
+                LeaderBoardTimer.Start();
+                LeaderboardEvent?.Invoke();
+                
+            }
+            else
+            {
+                NextQuestion();
+            }
+            
+        }
+
+        public void LoadNextQuestion()
+        {
+            userAnswers = new Dictionary<Answer, List<string>>();
+            this.Time = quiz.Questions[questionIndex].Time;
+            foreach (Answer a in quiz.Questions[questionIndex].Answers)
+            {
+                userAnswers.Add(a, new List<string>());
+            }
+        }
+
+        public async void StartGameFirstQuestion()
+        {
+            SessionTable sessionTable = await _dataService.GetSessionById(sessionId);
+            quiz = await _dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
+            LoadNextQuestion();
+        }
+
+
+
+        public void RevealAnswer()
+        {
+            Closed = true;
+            QuestionTimer.Stop();
+
+            //foreach (KeyValuePair<Answer, List<string>> entry in userAnswers)
+            //{
+            //    if (entry.Key.Correct)
+            //    {
+            //        foreach (string nickname in entry.Value)
+            //        {
+            //            userPoints[nickname] += 1;
+            //        }
+            //    }
+            //}
+
+            foreach(KeyValuePair<string, int> entry in userPoints)
+            {
+                if (submittedAnswers.ContainsKey(entry.Key))
+                {
+                    if (submittedAnswers[entry.Key].Correct)
+                    {
+                        userPoints[entry.Key] += 1;
+                    }
+                }
+                else 
+                {
+                    didntAnswer.Add(entry.Key);
+                }
+
+            }
+
+
             RevealAnswerEvent?.Invoke();
-            timer.Stop();
+        }
+        private readonly IDataService _dataService;
+        public GameService(IDataService dataService)
+        {
+            _dataService = dataService;
         }
 
-        public GameService()
+        public void InitializeAll(int sessionId)
         {
             StartGame = false;
-            Users = new Dictionary<string, bool>();
-            timer = new System.Timers.Timer();
-            timer.Interval = 1000;
-            timer.Elapsed += TimerOnElapsed;
+            users = new List<string>();
+            userPoints = new Dictionary<string, int>();
+            QuestionTimer = new System.Timers.Timer();
+            QuestionTimer.Interval = 1000;
+            QuestionTimer.Elapsed += QuestionTimerOnElapsed;
+            LeaderBoardTimer = new System.Timers.Timer();
+            LeaderBoardTimer.Interval = 1000;
+            LeaderBoardTimer.Elapsed += LeaderBoardTimerOnElapsed;
+            this.sessionId = sessionId;
         }
 
-        private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+        private void QuestionTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             Time--;
-            if(Time < 0)
+            if (Time < 0)
             {
-                TimesUpEvent?.Invoke();
+                RevealAnswer();
             }
             else
             {
                 TimerCountEvent?.Invoke();
             }
         }
+
+        private int LeaderBoardUpTime = 5;
+        private void LeaderBoardTimerOnElapsed(object sender, ElapsedEventArgs e)
+        {
+            LeaderBoardUpTime--;
+            if (LeaderBoardUpTime < 0)
+            {
+                LeaderBoardTimer.Stop();
+                LeaderBoardUpTime = 5;
+                NextQuestion();
+            }
+        }
+
+        public bool CheckIfUserAnsweredCorrectly(string nickname)
+        {
+            //foreach (Answer answer in GetCurrentQuestion().GetCorrectAnswers())
+            //{
+            //    if (userAnswers[answer].Contains(nickname))
+            //    {
+            //        return true;
+            //    }
+            //}
+            //return false;
+            if (submittedAnswers.ContainsKey(nickname))
+            {
+                if (submittedAnswers[nickname].Correct)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool CheckIfUserAlreadyAnswered(string nickname)
+        {
+            if (submittedAnswers.ContainsKey(nickname))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool CheckIfNewUser(string nickname)
+        {
+            if (users.Contains(nickname))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void AddUser(string nickname)
+        {
+            users.Add(nickname);
+        }
+
+        public void RemoveUser(string nickname)
+        {
+            users.Remove(nickname);
+        }
+
+        public bool CheckIfFirstJoin(string nickname)
+        {
+            if (userPoints.ContainsKey(nickname))
+            {
+                return false;
+            }
+            return true;
+        }
+
+
+
     }
+    
 }

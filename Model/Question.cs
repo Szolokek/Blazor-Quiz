@@ -3,6 +3,7 @@ namespace Kviz.Model
 {
     public class Question
     {
+        public int Id { get; set; }
         public List<Answer> Answers { get; set; }
         public string? Text { get; set; }
         public int Time { get; set; }
@@ -29,6 +30,7 @@ namespace Kviz.Model
 
         public Question(QuestionTable q)
         {
+            Id = q.Id;
             Text = q.Text;
             Time = q.Time;
             Type = Enum.Parse<QuestionType>(q.Type);
@@ -67,6 +69,11 @@ namespace Kviz.Model
                 list.Add(answer.Text);
             }
             return list;
+        }
+
+        public bool CheckIfAnswerIsCorrect(string answer)
+        {
+            return GetAnswersAsString().Contains(answer);
         }
     }
 }

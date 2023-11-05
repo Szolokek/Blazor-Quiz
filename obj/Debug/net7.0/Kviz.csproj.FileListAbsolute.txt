@@ -88,8 +88,16 @@ C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\runt
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Shared\MainLayout.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\projectbundle\Kviz.bundle.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\Index.razor.rz.scp.css
-C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\Login.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Shared\Sidebar.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Shared\CreatorMenuLayout.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\Creator\EditQuiz.razor.rz.scp.css
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\Creator\CreatorMenuPage.razor.rz.scp.css
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\BCrypt.Net-Next.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Blazored.LocalStorage.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\LoginPage.razor.rz.scp.css

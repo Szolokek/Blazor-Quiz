@@ -1,8 +1,9 @@
 using Kviz.Data;
 using Kviz.Services;
 using Microsoft.EntityFrameworkCore;
-using Kviz.Migrations.Tables;
-
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using Kviz.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -10,8 +11,17 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlite(connectionString), ServiceLifetime.Scoped);
 builder.Services.AddScoped<IDataService, DataService>();
-builder.Services.AddSingleton<QuizService>();
+builder.Services.AddSingleton<QuizServiceFactory>();
+builder.Services.AddSingleton<QuizService>(provider =>
+{
+    var factory = provider.GetRequiredService<QuizServiceFactory>();
+    return factory.Create(provider);
+});
 builder.Services.AddHostedService<InitializationService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddTransient<GameService>();
 
 var app = builder.Build();
 

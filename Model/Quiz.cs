@@ -3,6 +3,7 @@ namespace Kviz.Model
 {
     public class Quiz
     {
+        public int Id { get; set; }
         public List<Question> Questions { get; set; }
         public string Name { get; set; }
 
@@ -13,6 +14,7 @@ namespace Kviz.Model
 
         public Quiz(QuizTable q)
         {
+            Id = q.Id;
             Name = q.Name;
             Questions = new List<Question>();
         }

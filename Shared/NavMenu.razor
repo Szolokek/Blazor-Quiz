@@ -1,5 +1,8 @@
 ﻿@using System.Diagnostics;
+@using Kviz.Authentication;
+@using Microsoft.AspNetCore.Components.Authorization;
 @inject NavigationManager UriHelper
+@inject AuthenticationStateProvider authStateProvider
 
 <div style="width:100%;" class="rz-color-primary-light rz-background-color-black">
     <RadzenMenu Click="OnParentClicked" class="rz-color-primary-light rz-background-color-black" id="menu-bar">
@@ -7,7 +10,7 @@
             <RadzenButton Variant="Variant.Text" class="nav-link" Click="@NavigateHome" ButtonStyle="ButtonStyle.Light" Text="Home" Icon="home" />
         </div>
         <div class="menu-point">
-            <RadzenButton Variant="Variant.Text" class="nav-link" Click="@Navigate" ButtonStyle="ButtonStyle.Light" Text="Search" Icon="search" />
+            <RadzenButton Variant="Variant.Text" class="nav-link" Click="(() => OnLogoutClickedAsync())" ButtonStyle="ButtonStyle.Light" Text="Logout" Icon="logout" />
         </div>
 
 
@@ -62,11 +65,18 @@
         curr_search_string = value;
     }
 
-    void Navigate()
+    private async Task OnLogoutClickedAsync()
     {
-        
-
+        await UseAuthyenticationService(null!);
+        UriHelper.NavigateTo("/");
     }
+
+    private async Task UseAuthyenticationService(string token)
+    {
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(token);
+    }
+
 
     void NavigateHome()
     {

@@ -13,5 +13,6 @@ namespace Kviz.Services
         public Task<List<SessionTable>> GetSessions();
         public void SetSessionDate(int Id);
         public Task<SessionTable> GetSessionById(int Id);
+        public void SaveToHistory(Dictionary<Answer, List<string>> userAnswers, int questionId, int sessionId);
     }
 }

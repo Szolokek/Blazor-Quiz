@@ -1,0 +1,109 @@
+﻿@page "/login"
+@using Kviz.Authentication;
+@using Kviz.Model;
+@using Kviz.Services;
+@using Microsoft.AspNetCore.Components.Authorization;
+@inject NavigationManager Navigation
+@inject IAccountService AccountService
+@inject IJSRuntime js
+@inject AuthenticationStateProvider authStateProvider
+
+<div id="page-div">
+    <div class="login-div">
+        <div class="place-div">
+            <span class="label">Username:</span>
+            <RadzenTextBox Placeholder="Username" Style="width: 90%" @bind-Value="LoginModel.UserName" />
+        </div>
+        
+    </div>
+    <div class="login-div">
+        <div class="place-div">
+            <span class="label">Password:</span>
+            <RadzenPassword Placeholder="Password" Style="width: 90%;" @bind-Value="LoginModel.Password" />
+        </div>
+        
+    </div>
+</div>
+<div class="buttons-div">
+    <RadzenButton Variant="Variant.Outlined" Text="Login" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => LoginClickedAsync())"/>
+    <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Create new account" class="rz-ripple rz-color-secondary" Style="margin: 10px" Click="(() => NavigateToRegister())"/>
+</div>
+
+
+<style>
+    #page-div{
+        height: 70%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+    }
+
+    .login-div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+        width: 50%;
+    }
+
+    .place-div{
+
+    }
+
+    .buttons-div {
+        height: 30%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .label{
+        color: white;
+        font-size: 1.5rem;
+    }
+
+</style>
+
+@code {
+    void OnChange(string value, string name)
+    {
+
+    }
+
+    private Login LoginModel { get; set; } = new()
+    {
+        UserName = string.Empty,
+        Password = string.Empty
+    };
+
+    void NavigateToRegister()
+    {
+        Navigation.NavigateTo("/register");
+    }
+
+    async Task LoginClickedAsync()
+    {
+        string token = await AccountService.LoginAsync(LoginModel);
+        if (string.IsNullOrEmpty(token))
+        {
+            await js.InvokeVoidAsync("alert", "Invalid Username/Password");
+            return;
+        }
+        else
+        {
+            await js.InvokeVoidAsync("alert", token); //only for debugging
+            await UseAuthyenticationService(token);
+            Navigation.NavigateTo("/creator");
+        }
+        LoginModel = new Login();
+    }
+
+    private async Task UseAuthyenticationService(string token)
+    {
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(token);
+    }
+}
