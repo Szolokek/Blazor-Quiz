@@ -26,7 +26,12 @@ namespace Kviz.Services
             //TODO make it so the param is a User.Id
         }
 
-        public async void CreateNewQuiz(Quiz quiz)
+        public async Task<List<QuizTable>> GetQuizesByUserId(int userId)
+        {
+            return await _context.Quizes.Where(q => q.User_Id == userId).ToListAsync();
+        }
+
+        public async void CreateNewQuiz(Quiz quiz, int userId)
         {
             QuizTable quizTable = new QuizTable
             {
@@ -38,6 +43,12 @@ namespace Kviz.Services
             await _context.SaveChangesAsync();
             SaveQuestionsAndAnswers(quizTable.Id, quiz);
             
+        }
+
+        public async Task<int> GetQuizUserIdByQuizIdAsync(int quizId)
+        {
+            var quiz = await _context.Quizes.Where(q => q.Id == quizId).SingleAsync();
+            return quiz.User_Id;
         }
 
         public async Task<Quiz> GetQuizByIdAsync(int Id)
@@ -115,10 +126,11 @@ namespace Kviz.Services
             
         }
 
-        public async Task<int> CreateSession(int Id)
+        public async Task<int> CreateSession(int quizId, int userId)
         {
             SessionTable newSession = new SessionTable();
-            newSession.Quiz_Id = Id;
+            newSession.Quiz_Id = quizId;
+            newSession.User_Id = userId;
             await _context.Sessions.AddAsync(newSession);
             await _context.SaveChangesAsync();
             return newSession.Id;
@@ -134,6 +146,11 @@ namespace Kviz.Services
         {
             return await _context.Sessions.Where(s => s.Id == Id).SingleAsync();
             
+        }
+
+        public async Task<List<SessionTable>> GetSessionsByUserId(int userId)
+        {
+            return await _context.Sessions.Where(u => u.User_Id == userId).ToListAsync();
         }
 
         public async void SetSessionDate(int Id)

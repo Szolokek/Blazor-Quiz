@@ -82,7 +82,6 @@ else
     public string? nickname { get; set; }
     public int sessionId;
     bool ShowGame = true;
-    bool Closed = false;
     bool UniqueName = false;
     string ShortAnswer = string.Empty;
 
@@ -124,12 +123,10 @@ else
     }
     void NextQuestion()
     {
-        Closed = false;
         this.StateHasChanged();
     }
     void RevealAnswer()
     {
-        Closed = true;
         this.StateHasChanged();
     }
     void OnShortAnswerSubmit(string text)

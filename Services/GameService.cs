@@ -17,7 +17,8 @@ namespace Kviz.Services
         public int questionIndex = 0;
         private bool startGame;
         private bool closed;
-        private bool leaderBoardView = false;
+        public bool leaderBoardView = false;
+        public bool GameOver = false;
         public bool StartGame
         {
             get
@@ -56,7 +57,7 @@ namespace Kviz.Services
         System.Timers.Timer QuestionTimer;
         System.Timers.Timer LeaderBoardTimer;
 
-        private Dictionary<string, int> userPoints;
+        public Dictionary<string, int> userPoints;
         public Dictionary<string, int> UserPoints { get; set; }
         private Dictionary<string, Answer> submittedAnswers;
 
@@ -106,13 +107,21 @@ namespace Kviz.Services
 
         public void NextQuestion()
         {
-            SaveAnswersToDB();
+            //SaveAnswersToDB();
             questionIndex++;
-            LoadNextQuestion();
-            userAnswers.Clear();
-            submittedAnswers.Clear();
-            NextQuestionEvent?.Invoke();
-            QuestionTimer.Start();
+            if(questionIndex == quiz.Questions.Count)
+            {
+                GameOver = true;
+            }
+            else
+            {
+                userAnswers.Clear();
+                submittedAnswers.Clear();
+                LoadNextQuestion();
+                Closed = false;
+                NextQuestionEvent?.Invoke();
+                QuestionTimer.Start();
+            }
         }
 
         public void CloseQuestion()
@@ -141,11 +150,13 @@ namespace Kviz.Services
             }
         }
 
-        public async void StartGameFirstQuestion()
+        public async void StartGameFirstQuestion(Quiz quiz)
         {
-            SessionTable sessionTable = await _dataService.GetSessionById(sessionId);
-            quiz = await _dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
+            //SessionTable sessionTable = await _dataService.GetSessionById(sessionId);
+            //quiz = await _dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
+            this.quiz = quiz;
             LoadNextQuestion();
+            QuestionTimer.Start();
         }
 
 
@@ -189,20 +200,21 @@ namespace Kviz.Services
         public GameService(IDataService dataService)
         {
             _dataService = dataService;
+            InitializeAll();
         }
 
-        public void InitializeAll(int sessionId)
+        public void InitializeAll()
         {
             StartGame = false;
             users = new List<string>();
             userPoints = new Dictionary<string, int>();
+            submittedAnswers = new Dictionary<string, Answer>();
             QuestionTimer = new System.Timers.Timer();
             QuestionTimer.Interval = 1000;
             QuestionTimer.Elapsed += QuestionTimerOnElapsed;
             LeaderBoardTimer = new System.Timers.Timer();
             LeaderBoardTimer.Interval = 1000;
             LeaderBoardTimer.Elapsed += LeaderBoardTimerOnElapsed;
-            this.sessionId = sessionId;
         }
 
         private void QuestionTimerOnElapsed(object sender, ElapsedEventArgs e)
@@ -218,7 +230,18 @@ namespace Kviz.Services
             }
         }
 
-        private int LeaderBoardUpTime = 5;
+        public int LeaderBoardUpTime = 5;
+        public string LeaderBoardUpTimeAsString
+        {
+            get => LeaderBoardUpTime.ToString();
+            set
+            {
+                if (int.TryParse(value, out var parsedValue))
+                {
+                    LeaderBoardUpTime = parsedValue;
+                }
+            }
+        }
         private void LeaderBoardTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             LeaderBoardUpTime--;
@@ -226,7 +249,12 @@ namespace Kviz.Services
             {
                 LeaderBoardTimer.Stop();
                 LeaderBoardUpTime = 5;
+                leaderBoardView = false;
                 NextQuestion();
+            }
+            else
+            {
+                LeaderboardEvent?.Invoke();
             }
         }
 

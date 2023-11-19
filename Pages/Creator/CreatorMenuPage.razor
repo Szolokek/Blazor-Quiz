@@ -1,11 +1,13 @@
 ﻿@using Kviz.Services
 @using Kviz.Migrations.Tables
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
 @layout Shared.CreatorMenuLayout
 @page "/creator"
 @inject NavigationManager Navigation
 @inject IDataService dataService
 @inject QuizService quizService
+@inject AuthenticationStateProvider authState;
 <AuthorizeView>
     <Authorized>
         @if (@quizes == null)
@@ -32,7 +34,7 @@
                     }
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Quizes:</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Sessions:</RadzenText>
                     @foreach (SessionTable session in sessions)
                     {
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
@@ -55,14 +57,21 @@
 
 
 @code {
+    [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; }
     List<QuizTable> quizes;
     List<SessionTable> sessions;
+    private int UserId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-
-        sessions = await dataService.GetSessions();
-        quizes = await dataService.GetQuizes();
+        var user = (await AuthState).User;
+        if (user.Identity!.IsAuthenticated)
+        {
+            var userId = int.Parse(user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value);
+            sessions = await dataService.GetSessionsByUserId(userId);
+            quizes = await dataService.GetQuizesByUserId(userId);
+            UserId = userId;
+        }
         await base.OnInitializedAsync();
     }
 
@@ -73,8 +82,8 @@
 
     async void OnCreateSession(int Id)
     {
-        int id = dataService.CreateSession(Id).Result;
-        sessions = await dataService.GetSessions();
+        int id = dataService.CreateSession(Id, UserId).Result;
+        sessions = await dataService.GetSessionsByUserId(UserId);
         //quizService.Sessions.Add(id, new GameService());
         //TODO make it so that the session is registered in the quizservice after creation.
 

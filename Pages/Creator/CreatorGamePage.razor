@@ -4,6 +4,7 @@
 @using Kviz.Migrations.Tables
 @using Microsoft.AspNetCore.Components.Authorization
 
+
 @page "/creator/game/{sessionIdString}"
 @layout MainLayout
 @inject QuizService quizService
@@ -18,15 +19,38 @@
         {
             @if (quiz != null)
             {
-                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text></RadzenText>
-                @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
-                {
-                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@answer.Text></RadzenText>
-                }
 
-            }
-            <RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswer())" />
-            <RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestion())" />
+                
+                @if (quizService.Sessions[sessionId].leaderBoardView)
+                {
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Leaderboard:"></RadzenText>
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].LeaderBoardUpTimeAsString></RadzenText>
+                    @foreach (KeyValuePair<string, int> entry in quizService.Sessions[sessionId].userPoints.OrderBy(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
+                    {
+                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=entry.Key></RadzenText>
+                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=": "></RadzenText>
+                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=entry.Value></RadzenText>
+                    }
+                    
+                }
+                else
+                {
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text></RadzenText>
+                    @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
+                    {
+                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@answer.Text></RadzenText>
+                    }
+                    <RadzenChart>
+                        <RadzenColumnSeries Data="@GetChartSeries(quizService.Sessions[sessionId].UserAnswers)" CategoryProperty="Text" LineType="LineType.Dashed" ValueProperty="Size">
+                            <RadzenSeriesDataLabels Visible="true" />
+                        </RadzenColumnSeries>
+                        <RadzenColumnOptions Radius="5" />
+                    </RadzenChart>
+                }
+                <RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswer())" />
+                <RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestion())" />
+                }
+                
             @*@foreach (KeyValuePair<Answer, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
             {
                 <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
@@ -79,23 +103,45 @@
         sessionId = Int32.Parse(sessionIdString!);
         quizService.Sessions[sessionId].TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswer());
         quizService.Sessions[sessionId].LeaderboardEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        quizService.Sessions[sessionId].NextQuestionEvent += async () => await InvokeAsync(() => this.StateHasChanged());
         base.OnInitialized();
     }
 
     void OnRevealAnswer()
     {
         RevealAnswerButtonVisibility = false;
+        this.StateHasChanged();
         quizService.Sessions[sessionId].RevealAnswer();
     }
     void OnNextQuestion()
     {
-        quizService.Sessions[sessionId].NextQuestion();
+        quizService.Sessions[sessionId].CloseQuestion();
     }
     async void OnStartQuiz()
     {
         SessionTable sessionTable = await dataService.GetSessionById(sessionId);
         quiz = await dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
-        quizService.Sessions[sessionId].StartGameFirstQuestion();
+        quizService.Sessions[sessionId].StartGameFirstQuestion(quiz);
         quizService.Sessions[sessionId].StartGame = true;
+    }
+    class DataItem
+    {
+        public string Text { get; set; }
+        public int Size { get; set; }
+    }
+
+    IEnumerable<DataItem> GetChartSeries(Dictionary<Answer, List<string>> dict)
+    {
+        if (dict != null)
+        {
+            foreach (var key in dict.Keys)
+            {
+                yield return new DataItem()
+                    {
+                        Text = key.Text,
+                        Size = dict[key].Count
+                    };
+            }
+        }
     }
 }
