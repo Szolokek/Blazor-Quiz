@@ -16,36 +16,40 @@
         }
         else
         {
-            <div id="buttons-div">
-                <RadzenButton Variant="Variant.Outlined" Text="Create new Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => NavigateToEditor())" />
-                <RadzenButton Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Create new account" class="rz-ripple rz-color-secondary" Style="margin: 10px" Click="(() => NavigateToEditor())" />
-            </div>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
-                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Quizes:</RadzenText>
-                    @foreach (QuizTable quiz in quizes)
-                    {
-                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
-                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@quiz.Name"></RadzenText>
-                            <RadzenButton class="rz-ripple" Click=@(() => OnCreateSession(quiz.Id)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Create Session" />
-                            <RadzenButton class="rz-ripple" Click=@(() => OnEditQuiz(quiz)) Icon="edit" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Text" />
-                            <RadzenButton class="rz-ripple" Click=@(() => OnDeleteQuiz(quiz)) Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
-                        </RadzenStack>
-                    }
-                </RadzenStack>
-                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Your Sessions:</RadzenText>
-                    @foreach (SessionTable session in sessions)
-                    {
-                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
-                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@session.Id.ToString()"></RadzenText>
-                            <RadzenButton class="rz-ripple" Click=@(() => OnStartSession(session)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Start Session" />
-                        </RadzenStack>
-                    }
-                </RadzenStack>
-
-
-            </RadzenStack>
+            <RadzenRow class="rz-text-align-center" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenColumn SizeSM="12" SizeMD="6" class="rz-p-5">
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                        <RadzenText TextStyle="TextStyle.H3" TagName="TagName.H3">Your Quizes:</RadzenText>
+                        @foreach (QuizTable quiz in quizes)
+                        {
+                            <RadzenCard class="rz-border-color-series-2" style="width:90%; border-style:solid; padding: 1rem; border-radius: 1rem; background-color: rgb(120, 120, 120, 0.1);">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" >
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.H3" Text="@quiz.Name"></RadzenText>
+                                    <RadzenButton class="rz-ripple" Click=@(() => OnCreateSession(quiz.Id)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Create Session" />
+                                    <RadzenButton class="rz-ripple" Click=@(() => OnEditQuiz(quiz)) Icon="edit" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Text" />
+                                    <RadzenButton class="rz-ripple" Click=@(() => OnDeleteQuiz(quiz)) Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+                                </RadzenStack>
+                            </RadzenCard>
+                        }
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn SizeSM="12" SizeMD="5" class="rz-p-5">
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                        <RadzenText TextStyle="TextStyle.H3" TagName="TagName.H3">Your Sessions:</RadzenText>
+                        @foreach (SessionTable session in sessions)
+                        {
+                            <div class="rz-border-color-danger-light" style="width:90%; border-style:solid; padding: 1rem; border-radius: 1rem; background-color: rgb(120, 120, 120, 0.1);">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@session.Id.ToString()"></RadzenText>
+                                    <RadzenButton class="rz-ripple" Click=@(() => OnStartSession(session)) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Start Session" />
+                                </RadzenStack>
+                            </div>
+                        }
+                    </RadzenStack>
+                </RadzenColumn>
+                
+            </RadzenRow>
+            
         }
     </Authorized>
 </AuthorizeView>

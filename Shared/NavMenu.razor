@@ -7,7 +7,16 @@
 <div style="width:100%;" class="rz-color-primary-light rz-background-color-black">
     <RadzenMenu Click="OnParentClicked" class="rz-color-primary-light rz-background-color-black" id="menu-bar">
         <div class="menu-point">
-            <RadzenButton Variant="Variant.Text" class="nav-link" Click="@NavigateHome" ButtonStyle="ButtonStyle.Light" Text="Home" Icon="home" />
+            <RadzenButton Variant="Variant.Text" class="nav-link" Click="(() => OnHomeClicked())" ButtonStyle="ButtonStyle.Light" Text="Home" Icon="home" />
+        </div>
+        <div class="menu-point">
+            <RadzenButton Variant="Variant.Text" class="nav-link" Click="(() => OnCreateClicked())" ButtonStyle="ButtonStyle.Light" Text="Create new quiz" Icon="add" />
+        </div>
+        <div class="menu-point">
+            <RadzenButton Variant="Variant.Text" class="nav-link" Click="(() => OnHistoriesClicked())" ButtonStyle="ButtonStyle.Light" Text="Histories" Icon="history" />
+        </div>
+        <div class="menu-point">
+            <RadzenButton Variant="Variant.Text" class="nav-link" Click="@NavigateHome" ButtonStyle="ButtonStyle.Light" Text="Join Game" Icon="sports_esports" />
         </div>
         <div class="menu-point">
             <RadzenButton Variant="Variant.Text" class="nav-link" Click="(() => OnLogoutClickedAsync())" ButtonStyle="ButtonStyle.Light" Text="Logout" Icon="logout" />
@@ -58,6 +67,18 @@
     void OnParentClicked(MenuItemEventArgs args)
     {
 
+    }
+    void OnHomeClicked()
+    {
+        UriHelper.NavigateTo("/creator");
+    }
+    void OnCreateClicked()
+    {
+        UriHelper.NavigateTo("/creator/editor");
+    }
+    void OnHistoriesClicked()
+    {
+        UriHelper.NavigateTo("/creator/histories");
     }
 
     void OnChange(string value, string name)

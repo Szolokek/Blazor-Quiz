@@ -7,6 +7,7 @@ using System.Timers;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Kviz.Services
 {
@@ -58,12 +59,12 @@ namespace Kviz.Services
         System.Timers.Timer LeaderBoardTimer;
 
         public Dictionary<string, int> userPoints;
-        public Dictionary<string, int> UserPoints { get; set; }
+        
         private Dictionary<string, Answer> submittedAnswers;
 
-        private List<string> users;
+        public List<string> users;
         private Dictionary<Answer, List<string>> userAnswers;
-        public Dictionary<Answer, List<string>> UserAnswers { get; set; }
+        public Dictionary<Answer, List<string>> UserAnswers { get { return userAnswers; } set { userAnswers = value; } }
         private List<string> didntAnswer;
 
 
@@ -78,6 +79,11 @@ namespace Kviz.Services
             UpdateEvent?.Invoke();
         }
 
+        public Dictionary<string, Answer> GetSubmittedAnswers()
+        {
+            return submittedAnswers;
+        }
+
 
         public event Func<Task> UpdateEvent;
         public event Func<Task> NextQuestionEvent;
@@ -88,6 +94,8 @@ namespace Kviz.Services
         public event Func<Task> TimesUpEvent;
         public event Func<Task> StateChangedEvent;
         public event Func<Task> LeaderboardEvent;
+        public event Func<Task> NewUserEvent;
+        public event Func<Task> GameOverEvent;
 
 
         public Question GetCurrentQuestion()
@@ -99,19 +107,15 @@ namespace Kviz.Services
             return quiz.Questions[questionIndex].Answers;
         }
 
-        private void SaveAnswersToDB()
-        {
-            //TODO implement the new model with didntAnswer and make new tables for history
-            _dataService.SaveToHistory(userAnswers, quiz.Questions[questionIndex].Id, sessionId);
-        }
+        
 
         public void NextQuestion()
         {
-            //SaveAnswersToDB();
             questionIndex++;
             if(questionIndex == quiz.Questions.Count)
             {
                 GameOver = true;
+                GameOverEvent?.Invoke();
             }
             else
             {
@@ -196,10 +200,9 @@ namespace Kviz.Services
 
             RevealAnswerEvent?.Invoke();
         }
-        private readonly IDataService _dataService;
-        public GameService(IDataService dataService)
+        
+        public GameService()
         {
-            _dataService = dataService;
             InitializeAll();
         }
 
@@ -207,7 +210,9 @@ namespace Kviz.Services
         {
             StartGame = false;
             users = new List<string>();
+            didntAnswer = new List<string>();
             userPoints = new Dictionary<string, int>();
+            userAnswers = new Dictionary<Answer, List<string>>();
             submittedAnswers = new Dictionary<string, Answer>();
             QuestionTimer = new System.Timers.Timer();
             QuestionTimer.Interval = 1000;
@@ -215,6 +220,7 @@ namespace Kviz.Services
             LeaderBoardTimer = new System.Timers.Timer();
             LeaderBoardTimer.Interval = 1000;
             LeaderBoardTimer.Elapsed += LeaderBoardTimerOnElapsed;
+            GameOver = false;
         }
 
         private void QuestionTimerOnElapsed(object sender, ElapsedEventArgs e)
@@ -260,14 +266,7 @@ namespace Kviz.Services
 
         public bool CheckIfUserAnsweredCorrectly(string nickname)
         {
-            //foreach (Answer answer in GetCurrentQuestion().GetCorrectAnswers())
-            //{
-            //    if (userAnswers[answer].Contains(nickname))
-            //    {
-            //        return true;
-            //    }
-            //}
-            //return false;
+            
             if (submittedAnswers.ContainsKey(nickname))
             {
                 if (submittedAnswers[nickname].Correct)
@@ -299,6 +298,7 @@ namespace Kviz.Services
         public void AddUser(string nickname)
         {
             users.Add(nickname);
+            NewUserEvent?.Invoke();
         }
 
         public void RemoveUser(string nickname)

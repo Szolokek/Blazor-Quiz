@@ -4,19 +4,20 @@
 @using Kviz.Migrations.Tables;
 @inject NavigationManager Navigation
 
-<div class="page-class">
-    <div style="height: 80%;" class="button-div">
-        <RadzenTextBox Placeholder="Session" Style="width: 90%" @bind-Value="@Session"/>
-        <RadzenTextBox Placeholder="Nickname" Style="width: 90%" @bind-Value="@Nickname"/>
-        <RadzenButton class="rz-ripple" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToNickName()" />
-    </div>
-    
+<RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:90vh;">
+    <RadzenStack JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
+        <RadzenTextBox class="margin_for_input" Placeholder="Session" Style="width: 90%" @bind-Value="@Session"/>
+        <RadzenTextBox class="margin_for_input" Placeholder="Nickname" Style="width: 90%" @bind-Value="@Nickname"/>
+        <RadzenButton class="rz-ripple margin_for_input" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToNickName()" />
+    </RadzenStack>
+</RadzenRow>
+<RadzenStack JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
     <div>
         <RadzenLink Text="Create" class="rz-ripple" Path="login"/>
-        <span> your own quiz</span>
+        <span style="color: white;"> your own quiz</span>
     </div>
     
-</div>
+</RadzenStack>
 
 
 

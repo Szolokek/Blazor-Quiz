@@ -14,7 +14,7 @@
             using (var scope = _scopeFactory.CreateScope())
             {
                 var dataService = scope.ServiceProvider.GetRequiredService<IDataService>();
-                return new QuizService(dataService);
+                return new QuizService();
             }
         }
     }

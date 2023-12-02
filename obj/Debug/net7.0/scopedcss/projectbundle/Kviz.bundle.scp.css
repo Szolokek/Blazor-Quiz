@@ -1,10 +1,5 @@
 /* _content/Kviz/Pages/Creator/CreatorMenuPage.razor.rz.scp.css */
-#buttons-div[b-kkw0qp0aiy] {
-    height: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+
 /* _content/Kviz/Pages/Creator/EditQuiz.razor.rz.scp.css */
 .question-container[b-rum0sd1l97] {
     display: flex;
@@ -36,6 +31,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.margin_for_input[b-avxv82e1dy]{
+    margin-bottom: 1rem;
 }
 /* _content/Kviz/Pages/LoginPage.razor.rz.scp.css */
 #body[b-bhoxpwjpmr] {

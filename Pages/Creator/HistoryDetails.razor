@@ -1,0 +1,57 @@
+﻿@using Kviz.Model
+@if(quizHistory == null)
+{
+    <h2>Loading...</h2>
+}
+else
+{
+    <RadzenText TextStyle="TextStyle.H3" TagName="TagName.H3" Text="@quizHistory.Name" style="margin-left:1rem;"></RadzenText>
+    @foreach (var question in quizHistory.questionHistories)
+    {
+        <div class="rz-border-color-series-2" style="width:90%; border-style:solid; padding: 1rem; border-radius: 1rem; margin-left: 1rem; margin-bottom: 1rem; background-color: rgb(120, 120, 120, 0.1);">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H2" Text="@question.Text"></RadzenText>
+            <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenColumn Size="3">
+                    <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.H3" Text="Nickname"></RadzenText>
+                </RadzenColumn>
+                <RadzenColumn>
+                    <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.H3" Text="Answer"></RadzenText>
+                </RadzenColumn>
+            </RadzenRow>
+            @foreach (var answer in question.answerHistories)
+            {
+                <div style="border-radius: 1rem; margin-bottom: 0.5rem; padding: 0.5rem; background: @CorrectBG(answer.Correct);">
+                    <RadzenRow AlignItems="AlignItems.Center" >
+                        <RadzenColumn Size="3">
+                            <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.H3" Text="@answer.PlayerName"></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.H3" Text="@answer.Text"></RadzenText>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </div>
+            }
+        </div>
+    }
+}
+<RadzenButton class="rz-ripple" Click=@(() => OnBackClicked()) ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Outlined" Text="Back" stlye="margin: 1rem;"/>
+
+@code {
+    [Parameter] public QuizHistory quizHistory { get; set; }
+    [Parameter] public EventCallback OnBackClickedEvent { get; set; }
+    private async Task OnBackClicked()
+    {
+        await OnBackClickedEvent.InvokeAsync();
+    }
+    string CorrectBG(bool correct)
+    {
+        if (correct)
+        {
+            return "rgb(0, 255, 0, 0.3)";
+        }
+        else
+        {
+            return "rgb(255, 0, 0, 0.3)";
+        }
+    }
+}

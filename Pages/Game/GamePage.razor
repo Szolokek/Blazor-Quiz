@@ -2,7 +2,7 @@
 @using Kviz.Services
 @using Kviz.Model
 
-@page "/game/{sessionIdString}/{nickname}"
+@page "/game/{sessionId:int}/{nickname}"
 @layout MainLayout
 @inject QuizService quizService
 @implements IDisposable
@@ -11,7 +11,10 @@
 {
     @if (!quizService.Sessions[sessionId].StartGame)
     {
-        <h3>Waiting for host to start the game...</h3>
+        <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:100vh;">
+            <h3 style="color:white;">Waiting for host to start the game...</h3>
+        </RadzenRow>
+        
     }
     else
     {
@@ -24,7 +27,6 @@
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
                             <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text class="rz-color-white"></RadzenText>
-                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].TimeAsString class="rz-color-white"></RadzenText>
 
                         </RadzenStack>
                         @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
@@ -56,11 +58,16 @@
         {
             if (quizService.Sessions[sessionId].CheckIfUserAnsweredCorrectly(nickname!))
             {
-                <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Correct answer"></RadzenText>
+                <RadzenRow style="margin-top: 2rem; background-color: rgba(0,255,0,0.7); border-radius: 1rem;" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H2" TagName="TagName.H3" Text="Correct answer"></RadzenText>
+                </RadzenRow>
+                
             }
             else
             {
-                <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Incorrect answer"></RadzenText>
+                <RadzenRow style="margin-top: 2rem; background-color: rgba(255,0,0,0.8); border-radius: 1rem;" JustifyContent="JustifyContent.Center">
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H2" TagName="TagName.H3" Text="Incorrect answer"></RadzenText>
+                </RadzenRow>
             }
 
         }
@@ -70,31 +77,31 @@
 }
 else
 {
-    <h3>Your nickname must be unique</h3>
+    <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:100vh;">
+        <h3 style="color:white;">Your nickname must be unique</h3>
+    </RadzenRow>
 }
 
 
 
 @code {
     [Parameter]
-    public string? sessionIdString { get; set; }
+    public int sessionId { get; set; }
     [Parameter]
     public string? nickname { get; set; }
-    public int sessionId;
     bool ShowGame = true;
     bool UniqueName = false;
     string ShortAnswer = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        sessionId = Int32.Parse(sessionIdString!);
         if (quizService.Sessions[sessionId].CheckIfNewUser(nickname!))
         {
             UniqueName = true;
             quizService.Sessions[sessionId].AddUser(nickname!);
-            if (!quizService.Sessions[sessionId].CheckIfFirstJoin(nickname!))
+            if (quizService.Sessions[sessionId].CheckIfFirstJoin(nickname!))
             {
-                quizService.Sessions[sessionId].UserPoints.Add(nickname!, 0);
+                quizService.Sessions[sessionId].userPoints.Add(nickname!, 0);
             }
         }
 

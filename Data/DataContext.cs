@@ -20,6 +20,9 @@ namespace Kviz.Data
         public DbSet<SessionTable> Sessions { get; set; }
         public DbSet<QuestionTable> Questions { get; set; }
         public DbSet<AnswerTable> Answers { get; set; }
-        public DbSet<HistoryTable> History { get; set; }
+        public DbSet<HistoryTable> Histories { get; set; }
+        public DbSet<QuizHistoryTable> QuizHistories { get; set; }
+        public DbSet<QuestionHistoryTable> QuestionHistories { get; set; }
+        public DbSet<AnswerHistoryTable> AnswerHistories { get; set; }
     }
 }

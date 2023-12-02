@@ -1,0 +1,95 @@
+﻿@using Kviz.Model;
+@using Kviz.Services
+@using Kviz.Migrations.Tables
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@layout Shared.CreatorMenuLayout
+@page "/creator/histories"
+@inject NavigationManager Navigation
+@inject IDataService dataService
+@inject QuizService quizService
+@inject AuthenticationStateProvider authState;
+<AuthorizeView>
+    <Authorized>
+        @if(!ShowHistoryDetails){
+            @if (@histories == null)
+            {
+                <h3>Loading...</h3>
+            }
+            else
+            {
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start">
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                    <RadzenText TextStyle="TextStyle.H3" TagName="TagName.H3" style="margin-left: 1rem">Histories:</RadzenText>
+                        @foreach (HistoryTable history in histories)
+                        {
+                            <div class="rz-border-color-danger-light" style="width:100%; border-style:solid; padding: 1rem; border-radius: 1rem; margin-left: 1rem; background-color: rgb(120, 120, 120, 0.1);">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@history.Date.ToString()"></RadzenText>
+
+                                    <RadzenButton Text="Show details" class="rz-ripple" Click=@(() => OnOpenHistoryAsync(history.Id)) Icon="auto_stories" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+                                    <RadzenButton  class="rz-ripple" Click=@(() => OnDeleteHistory(history.Id)) Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" />
+                                </RadzenStack>
+                            </div>
+                        }
+                    </RadzenStack>
+                </RadzenStack>
+            }
+        }
+        else
+        {
+            <HistoryDetails quizHistory="@quizHistory" OnBackClickedEvent="@OnBackClickedEventHandler"></HistoryDetails>
+        }
+
+
+    </Authorized>
+</AuthorizeView>
+
+
+
+
+
+
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; }
+    List<HistoryTable> histories;
+    bool ShowHistoryDetails = false;
+    QuizHistory quizHistory;
+
+
+    private int UserId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        if (user.Identity!.IsAuthenticated)
+        {
+            var userId = int.Parse(user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value);
+            histories = await dataService.GetHistoriesByUserIdAsync(userId);
+            UserId = userId;
+        }
+        await base.OnInitializedAsync();
+    }
+
+    public async Task OnOpenHistoryAsync(int historyId)
+    {
+        quizHistory = await dataService.GetQuizHistoryDetailAync(historyId);
+        ShowHistoryDetails = true;
+    }
+    async Task<string> GetQuizNameAsync(int historyId)
+    {
+        QuizHistoryTable qht = await dataService.GetNameOfQuiz(historyId);
+        return qht.Name;
+    }
+
+    async Task OnDeleteHistory(int historyId)
+    {
+        await dataService.DeleteHistoryByIdAsync(historyId);
+    }
+
+    private void OnBackClickedEventHandler()
+    {
+        ShowHistoryDetails = false;
+    }
+}

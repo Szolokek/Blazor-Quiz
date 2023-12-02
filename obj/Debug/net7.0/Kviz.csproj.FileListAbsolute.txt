@@ -101,3 +101,4 @@ C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Micr
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\Newtonsoft.Json.dll
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\obj\Debug\net7.0\scopedcss\Pages\LoginPage.razor.rz.scp.css
+C:\Users\Illés Ákos\Desktop\Iskola PDF\Szakdolgozat\Kviz\bin\Debug\net7.0\libman.json

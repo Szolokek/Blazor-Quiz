@@ -16,6 +16,11 @@ namespace Kviz.Services
         public void SetSessionDate(int Id);
         public Task<SessionTable> GetSessionById(int Id);
         public Task<List<SessionTable>> GetSessionsByUserId(int userId);
-        public void SaveToHistory(Dictionary<Answer, List<string>> userAnswers, int questionId, int sessionId);
+        public Task SaveToHistory(int quizHistoryId, Question question, Dictionary<string, Answer> submittedAnswers);
+        public Task<int> InitHistory(string quizName, int sessionId, int userId);
+        public Task<List<HistoryTable>> GetHistoriesByUserIdAsync(int userId);
+        public Task<QuizHistoryTable> GetNameOfQuiz(int historyId);
+        public Task DeleteHistoryByIdAsync(int historyId);
+        public Task<QuizHistory> GetQuizHistoryDetailAync(int historyId);
     }
 }

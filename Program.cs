@@ -11,12 +11,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlite(connectionString), ServiceLifetime.Scoped);
 builder.Services.AddScoped<IDataService, DataService>();
-builder.Services.AddSingleton<QuizServiceFactory>();
-builder.Services.AddSingleton<QuizService>(provider =>
-{
-    var factory = provider.GetRequiredService<QuizServiceFactory>();
-    return factory.Create(provider);
-});
+builder.Services.AddSingleton<QuizService>();
 builder.Services.AddHostedService<InitializationService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();

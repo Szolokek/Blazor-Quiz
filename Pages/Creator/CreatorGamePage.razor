@@ -3,119 +3,204 @@
 @using Kviz.Model
 @using Kviz.Migrations.Tables
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
 
 
-@page "/creator/game/{sessionIdString}"
+@page "/creator/game/{sessionId:int}"
 @layout MainLayout
 @inject QuizService quizService
 @inject IDataService dataService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider authState;
 <AuthorizeView>
     <Authorized>
-        @if (!@quizService.Sessions[sessionId].StartGame)
+        @if (AuthorizedUser)
         {
-            <RadzenButton Variant="Variant.Outlined" Text="Start Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnStartQuiz())" />
-        }
-        else
-        {
-            @if (quiz != null)
+            @if (!@quizService.Sessions[sessionId].GameOver)
             {
-
-                
-                @if (quizService.Sessions[sessionId].leaderBoardView)
+                        
+    
+                @if (!@quizService.Sessions[sessionId].StartGame)
                 {
-                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Leaderboard:"></RadzenText>
-                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].LeaderBoardUpTimeAsString></RadzenText>
-                    @foreach (KeyValuePair<string, int> entry in quizService.Sessions[sessionId].userPoints.OrderBy(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
-                    {
-                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=entry.Key></RadzenText>
-                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=": "></RadzenText>
-                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=entry.Value></RadzenText>
-                    }
-                    
+                    <RadzenButton Variant="Variant.Outlined" Text="Start Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnStartQuiz())" />
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Users:"></RadzenText>
+                    <RadzenRow>
+                        @foreach (string user in quizService.Sessions[sessionId].users)
+                        {
+                            <RadzenColumn Size="1">
+                                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@user"></RadzenText>
+                            </RadzenColumn>
+                        }
+                    </RadzenRow>
+                
                 }
                 else
                 {
-                    <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text></RadzenText>
-                    @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
+                    @if (quiz != null)
                     {
-                        <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@answer.Text></RadzenText>
+
+
+                        @if (quizService.Sessions[sessionId].leaderBoardView)
+                        {
+                            <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Leaderboard:"></RadzenText>
+                            <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].LeaderBoardUpTimeAsString></RadzenText>
+                            <RadzenStack JustifyContent="JustifyContent.Center">
+                            @foreach (KeyValuePair<string, int> entry in (from entry in quizService.Sessions[sessionId].userPoints orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
+                                {
+                                    <RadzenRow Gap="0.1rem" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
+                                        <RadzenCard Style="width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;">
+                                            <RadzenRow JustifyContent="JustifyContent.Center">
+                                                <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@entry.Key></RadzenText>
+                                                <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=":"></RadzenText>
+                                                <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@entry.Value.ToString()></RadzenText>
+                                            </RadzenRow>
+                                        
+                                        </RadzenCard>
+                                    </RadzenRow>
+                                }
+                            </RadzenStack>
+                        }
+                        else
+                        {
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="10" >
+                                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H3" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="1">
+                                    <RadzenRow>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text="Time: " class="rz-color-white"></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].TimeAsString class="rz-color-white"></RadzenText>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                                <RadzenColumn Size="1">
+                                    <RadzenRow Gap="0">
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetSubmittedAnswers().Count.ToString() class="rz-color-white"></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text="/" class="rz-color-white"></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].users.Count.ToString() class="rz-color-white"></RadzenText>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        
+                        
+                            @if (@quizService.Sessions[sessionId].GetCurrentQuestion().Type == QuestionType.MultipleChoice)
+                            {
+                                @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
+                                {
+                                    <RadzenRow JustifyContent="JustifyContent.Center">
+                                        <RadzenCard Style=@AnswerCardStyle(answer.Correct)>
+                                            <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@answer.Text></RadzenText>
+                                        </RadzenCard>
+                                    </RadzenRow>
+                                
+                                }
+                            }
+                            else if (@quizService.Sessions[sessionId].GetCurrentQuestion().Type == QuestionType.ShortAnswer)
+                            {
+                            
+                            }
+
+                            <RadzenChart>
+                                <RadzenColumnSeries Data="chartData" CategoryProperty="Text" LineType="LineType.Dashed" ValueProperty="Size" >
+                                    <RadzenSeriesDataLabels Visible="true" />
+                                    <RadzenAxisTitle Text="Answers"/>
+                                    <RadzenCategoryAxis Visible="@CategoryAxisVisibility()"></RadzenCategoryAxis>
+                                </RadzenColumnSeries>
+                                <RadzenColumnOptions Radius="2"/>
+                            </RadzenChart>
+                        }
+                        <RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswerAsnyc())" Disabled=@RevealAnswerButtonDisabled />
+                        <RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestionAsync())" />
                     }
-                    <RadzenChart>
-                        <RadzenColumnSeries Data="@GetChartSeries(quizService.Sessions[sessionId].UserAnswers)" CategoryProperty="Text" LineType="LineType.Dashed" ValueProperty="Size">
-                            <RadzenSeriesDataLabels Visible="true" />
-                        </RadzenColumnSeries>
-                        <RadzenColumnOptions Radius="5" />
-                    </RadzenChart>
-                }
-                <RadzenButton Variant="Variant.Outlined" Text="Reveal Answer" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnRevealAnswer())" />
-                <RadzenButton Variant="Variant.Outlined" Text="Next Question" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnNextQuestion())" />
                 }
                 
-            @*@foreach (KeyValuePair<Answer, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
-            {
-                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
-                @foreach (string user in entry.Value)
-                {
-                    <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@user></RadzenText>
-                }
-            }
-            @*<RadzenChart>
-        <RadzenColumnSeries Data="@quizService.Sessions[Int32.Parse(sessionId)].UserAnswers." TItem="" CategoryProperty="Quarter" Title="Answers" LineType="LineType.Dashed" ValueProperty="Revenue">
-        </RadzenColumnSeries>
-        <RadzenColumnOptions Radius="5" />
-        <RadzenValueAxis>
-        <RadzenGridLines Visible="true" />
-        <RadzenAxisTitle Text="Number of votes" />
-        </RadzenValueAxis>
-        </RadzenChart>*@
-        @*}
-        @foreach (KeyValuePair<Answer, List<string>> entry in quizService.Sessions[sessionId].UserAnswers)
-        {
-            @if (entry.Key.Correct)
-            {
-                <RadzenText class="rz-color-success-light" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
             }
             else
             {
-                <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@entry.Key.Text></RadzenText>
+                <RadzenRow JustifyContent="JustifyContent.Center">
+                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H2" TagName="TagName.H3" Text="Game Over"></RadzenText>
+                </RadzenRow>
+                <RadzenStack JustifyContent="JustifyContent.Center">
+                    @foreach (KeyValuePair<string, int> entry in (from entry in quizService.Sessions[sessionId].userPoints orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
+                    {
+                        <RadzenRow Gap="0.1rem" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
+                            <RadzenCard Style="width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;">
+                                <RadzenRow>
+                                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@entry.Key></RadzenText>
+                                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=":"></RadzenText>
+                                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@entry.Value.ToString()></RadzenText>
+                                </RadzenRow>
+                            </RadzenCard>
+                        </RadzenRow>
+                    }
+                </RadzenStack>
+                <RadzenButton Variant="Variant.Outlined" Text="Back to menu" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="@(() => Navigation.NavigateTo("/creator"))" />
+
             }
-            @foreach (string user in entry.Value)
-            {
-                <RadzenText class="rz-color-series-3" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@user></RadzenText>
-            }
-        }*@
         }
+        else
+        {
+            <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:100vh;">
+                <h3 style="color:white;">You are not authorized to host this session!</h3>
+            </RadzenRow>
+        }
+
        
     </Authorized>
 </AuthorizeView>
 
 @code {
     [Parameter]
-    public string? sessionIdString { get; set; }
-    public int sessionId;
+    public int sessionId { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; }
     Quiz? quiz = null;
     int questionIndex = 0;
-    bool RevealAnswerButtonVisibility = true;
+    bool RevealAnswerButtonDisabled = false;
+    bool AuthorizedUser = false;
+    int userId;
+    int quizHistoryId;
+    List<DataItem> chartData = new List<DataItem>();
 
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        sessionId = Int32.Parse(sessionIdString!);
-        quizService.Sessions[sessionId].TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswer());
+        quizService.Sessions[sessionId].TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswerAsnyc());
         quizService.Sessions[sessionId].LeaderboardEvent += async () => await InvokeAsync(() => this.StateHasChanged());
         quizService.Sessions[sessionId].NextQuestionEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        base.OnInitialized();
+        quizService.Sessions[sessionId].TimerCountEvent += async () => await InvokeAsync(() => OnTimerTick());
+        quizService.Sessions[sessionId].NewUserEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        quizService.Sessions[sessionId].GameOverEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+
+        GetChartSeries();
+        await AuthorizeUser();
+        await base.OnInitializedAsync();
     }
 
-    void OnRevealAnswer()
+    public async Task AuthorizeUser()
     {
-        RevealAnswerButtonVisibility = false;
+        SessionTable sessionTable = await dataService.GetSessionById(sessionId);
+        var user = (await AuthState).User;
+        if (user.Identity!.IsAuthenticated)
+        {
+            userId = int.Parse(user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value);
+            if (userId == sessionTable.User_Id)
+            {
+                AuthorizedUser = true;
+            }
+        }
+    }
+
+    async Task OnRevealAnswerAsnyc()
+    {
+        RevealAnswerButtonDisabled = true;
         this.StateHasChanged();
         quizService.Sessions[sessionId].RevealAnswer();
+
     }
-    void OnNextQuestion()
+    async Task OnNextQuestionAsync()
     {
         quizService.Sessions[sessionId].CloseQuestion();
+        await SaveToHistory();
+        RevealAnswerButtonDisabled = false;
     }
     async void OnStartQuiz()
     {
@@ -123,6 +208,7 @@
         quiz = await dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
         quizService.Sessions[sessionId].StartGameFirstQuestion(quiz);
         quizService.Sessions[sessionId].StartGame = true;
+        quizHistoryId = await dataService.InitHistory(quiz.Name, sessionId, userId);
     }
     class DataItem
     {
@@ -130,17 +216,78 @@
         public int Size { get; set; }
     }
 
-    IEnumerable<DataItem> GetChartSeries(Dictionary<Answer, List<string>> dict)
+    void GetChartSeries()
     {
+        Dictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
+        chartData.Clear();
         if (dict != null)
         {
             foreach (var key in dict.Keys)
             {
-                yield return new DataItem()
+                chartData.Add( new DataItem()
                     {
                         Text = key.Text,
                         Size = dict[key].Count
-                    };
+                    });
+            }
+        }
+        chartData = chartData.ToList();
+    }
+    void GetChartSeriesTemp()
+    {
+        Dictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
+        chartData.Clear();
+
+        for(int i = 0; i< 1; i++)
+        {
+            chartData.Add(new DataItem()
+                    {
+                        Text = "new",
+                        Size = 2
+                    });
+        }
+
+        chartData = chartData.ToList();
+    }
+
+    void OnTimerTick()
+    {
+        GetChartSeries();
+        this.StateHasChanged();
+    }
+
+    async Task SaveToHistory()
+    {
+        await dataService.SaveToHistory(quizHistoryId, quizService.Sessions[sessionId].GetCurrentQuestion(), quizService.Sessions[sessionId].GetSubmittedAnswers());
+    }
+
+    public bool CategoryAxisVisibility()
+    {
+        if (quizService.Sessions[sessionId].Closed)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public string AnswerCardStyle(bool correct)
+    {
+        if (!quizService.Sessions[sessionId].Closed)
+        {
+            return "width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;";
+        }
+        else
+        {
+            if (correct)
+            {
+                return "width:70%; background-color: rgb(0, 255, 0, 0.5); margin-bottom: 1rem; text-align: center;";
+            }
+            else
+            {
+                return "width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;";
             }
         }
     }

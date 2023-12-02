@@ -4,6 +4,7 @@ using Kviz.Model;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 namespace Kviz.Services
 {
@@ -42,7 +43,7 @@ namespace Kviz.Services
             await _context.Quizes.AddAsync(quizTable);
             await _context.SaveChangesAsync();
             SaveQuestionsAndAnswers(quizTable.Id, quiz);
-            
+
         }
 
         public async Task<int> GetQuizUserIdByQuizIdAsync(int quizId)
@@ -68,25 +69,25 @@ namespace Kviz.Services
                     quiz.Questions.Add(question);
                 }
                 return quiz;
-            }catch (Exception ex)
+            } catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 throw new Exception(ex.Message);
             }
-            
+
         }
 
         public async void UpdateQuiz(Quiz quiz, int Id)
         {
-            
+
             var quizRow = _context.Quizes.Find(Id);
             quizRow.Name = quiz.Name;
             var questionQuery = _context.Questions.Where(i => i.Quiz_Id == Id).ToList();
             _context.Questions.RemoveRange(questionQuery);
-            
+
             await _context.SaveChangesAsync();
 
-            
+
 
             SaveQuestionsAndAnswers(Id, quiz);
         }
@@ -95,7 +96,7 @@ namespace Kviz.Services
         {
             foreach (Question q in quiz.Questions)
             {
-                if(q.Text != null && q.Text != string.Empty && q.Answers.Count > 1)
+                if (q.Text != null && q.Text != string.Empty && q.Answers.Count > 1)
                 {
                     QuestionTable qt = new QuestionTable()
                     {
@@ -123,7 +124,7 @@ namespace Kviz.Services
                 }
             }
             await _context.SaveChangesAsync();
-            
+
         }
 
         public async Task<int> CreateSession(int quizId, int userId)
@@ -134,7 +135,7 @@ namespace Kviz.Services
             await _context.Sessions.AddAsync(newSession);
             await _context.SaveChangesAsync();
             return newSession.Id;
-            
+
         }
 
         public async Task<List<SessionTable>> GetSessions()
@@ -145,7 +146,7 @@ namespace Kviz.Services
         public async Task<SessionTable> GetSessionById(int Id)
         {
             return await _context.Sessions.Where(s => s.Id == Id).SingleAsync();
-            
+
         }
 
         public async Task<List<SessionTable>> GetSessionsByUserId(int userId)
@@ -159,20 +160,90 @@ namespace Kviz.Services
             session.Date = DateTime.Now;
         }
 
-        public async void SaveToHistory(Dictionary<Answer, List<string>> userAnswers, int questionId, int sessionId)
+        public async Task SaveToHistory(int quizHistoryId, Question question, Dictionary<string, Answer> submittedAnswers)
         {
-            List<HistoryTable> historyList = new List<HistoryTable>();
-            foreach(KeyValuePair<Answer, List<string>> entry in userAnswers)
+            QuestionHistoryTable questionHistoryTable = new QuestionHistoryTable()
             {
-                foreach(string nickname in entry.Value)
+                Text = question.Text,
+                QuizHistory_Id = quizHistoryId,
+            };
+
+            await _context.QuestionHistories.AddAsync(questionHistoryTable);
+            await _context.SaveChangesAsync();
+            List<AnswerHistoryTable> answerHistories = new List<AnswerHistoryTable>();
+            foreach (KeyValuePair<string, Answer> entry in submittedAnswers)
+            {
+                answerHistories.Add(new AnswerHistoryTable()
                 {
-                    HistoryTable history = new HistoryTable(sessionId, nickname, questionId, entry.Key.Id);
-                    historyList.Add(history);
-                }
+                    PlayerName = entry.Key,
+                    Correct = entry.Value.Correct,
+                    Text = entry.Value.Text,
+                    QuestionHistory_Id = questionHistoryTable.Id
+                });
             }
-            await _context.History.AddRangeAsync(historyList);
+            await _context.AnswerHistories.AddRangeAsync(answerHistories);
             await _context.SaveChangesAsync();
         }
 
+        public async Task<int> InitHistory(string quizName, int sessionId, int userId)
+        {
+            HistoryTable hTable = new HistoryTable(userId, DateTime.Now, sessionId);
+            await _context.Histories.AddAsync(hTable);
+            await _context.SaveChangesAsync();
+
+            QuizHistoryTable quizHistoryTable = new QuizHistoryTable()
+            {
+                Name = quizName,
+                History_Id = hTable.Id
+            };
+            await _context.QuizHistories.AddAsync(quizHistoryTable);
+            await _context.SaveChangesAsync();
+            return quizHistoryTable.Id;
+        }
+
+        public async Task<List<HistoryTable>> GetHistoriesByUserIdAsync(int userId)
+        {
+            return await _context.Histories.Where(h => h.User_Id == userId).ToListAsync();
+        }
+
+        public async Task<QuizHistoryTable> GetNameOfQuiz(int historyId)
+        {
+            return await _context.QuizHistories.Where(h => h.History_Id == historyId).SingleAsync();
+        }
+
+        public async Task DeleteHistoryByIdAsync(int historyId)
+        {
+            var history = await _context.Histories.Where(h => historyId == h.Id).SingleAsync();
+            _context.Histories.Remove(history!);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<QuizHistory> GetQuizHistoryDetailAync(int historyId)
+        {
+            QuizHistory quizHistory = new QuizHistory();
+            var quizTable = await _context.QuizHistories.Where(i => i.History_Id == historyId).SingleAsync();
+            quizHistory.Name = quizTable.Name;
+            var questions = await _context.QuestionHistories.Where(q => q.QuizHistory_Id == quizTable.Id).ToListAsync();
+            foreach (var question in questions)
+            {
+                QuestionHistory questionHistory = new QuestionHistory();
+                questionHistory.Text = question.Text;
+                List<AnswerHistoryTable> answerTableList = await _context.AnswerHistories.Where(a => a.QuestionHistory_Id == question.Id).ToListAsync();
+                foreach (var answer in answerTableList)
+                {
+                    AnswerHistory answerHistory = new AnswerHistory()
+                    {
+                        Text = answer.Text,
+                        PlayerName = answer.PlayerName,
+                        Correct = answer.Correct
+                    };
+                    questionHistory.answerHistories.Add(answerHistory);
+
+                }
+                quizHistory.questionHistories.Add(questionHistory);
+
+            }
+            return quizHistory;
+        }
     }
 }

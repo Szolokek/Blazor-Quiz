@@ -13,3 +13,7 @@
     align-items: center;
     justify-content: center;
 }
+
+.margin_for_input{
+    margin-bottom: 1rem;
+}
