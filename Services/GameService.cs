@@ -8,11 +8,13 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
+using System.Collections.Concurrent;
 
 namespace Kviz.Services
 {
     public class GameService
     {
+        private readonly object usersLock = new object();
         private int sessionId;
         public Quiz quiz;
         public int questionIndex = 0;
@@ -58,14 +60,31 @@ namespace Kviz.Services
         System.Timers.Timer QuestionTimer;
         System.Timers.Timer LeaderBoardTimer;
 
-        public Dictionary<string, int> userPoints;
+        public ConcurrentDictionary<string, int> userPoints;
         
-        private Dictionary<string, Answer> submittedAnswers;
-
-        public List<string> users;
-        private Dictionary<Answer, List<string>> userAnswers;
-        public Dictionary<Answer, List<string>> UserAnswers { get { return userAnswers; } set { userAnswers = value; } }
+        private ConcurrentDictionary<string, Answer> submittedAnswers;
+        private List<string> _users;
+        public List<string> users { 
+            get 
+            {
+                lock (usersLock)
+                {
+                    return _users;
+                }
+            }
+            set 
+            { 
+                lock (usersLock)
+                {
+                    _users = value;
+                }
+            } }
+        
+        private ConcurrentDictionary<Answer, List<string>> userAnswers;
+        public ConcurrentDictionary<Answer, List<string>> UserAnswers { get { return userAnswers; } set { userAnswers = value; } }
         private List<string> didntAnswer;
+        
+        
 
 
         public void AddToUserAnswers(Answer key, string value)
@@ -75,11 +94,11 @@ namespace Kviz.Services
 
         public void AddToSubmittedAnswers(Answer key, string nickname)
         {
-            submittedAnswers.Add(nickname, key);
+            submittedAnswers.TryAdd(nickname, key);
             UpdateEvent?.Invoke();
         }
 
-        public Dictionary<string, Answer> GetSubmittedAnswers()
+        public ConcurrentDictionary<string, Answer> GetSubmittedAnswers()
         {
             return submittedAnswers;
         }
@@ -146,11 +165,11 @@ namespace Kviz.Services
 
         public void LoadNextQuestion()
         {
-            userAnswers = new Dictionary<Answer, List<string>>();
+            userAnswers = new ConcurrentDictionary<Answer, List<string>>();
             this.Time = quiz.Questions[questionIndex].Time;
             foreach (Answer a in quiz.Questions[questionIndex].Answers)
             {
-                userAnswers.Add(a, new List<string>());
+                userAnswers.TryAdd(a, new List<string>());
             }
         }
 
@@ -169,18 +188,6 @@ namespace Kviz.Services
         {
             Closed = true;
             QuestionTimer.Stop();
-
-            //foreach (KeyValuePair<Answer, List<string>> entry in userAnswers)
-            //{
-            //    if (entry.Key.Correct)
-            //    {
-            //        foreach (string nickname in entry.Value)
-            //        {
-            //            userPoints[nickname] += 1;
-            //        }
-            //    }
-            //}
-
             foreach(KeyValuePair<string, int> entry in userPoints)
             {
                 if (submittedAnswers.ContainsKey(entry.Key))
@@ -196,8 +203,6 @@ namespace Kviz.Services
                 }
 
             }
-
-
             RevealAnswerEvent?.Invoke();
         }
         
@@ -211,9 +216,9 @@ namespace Kviz.Services
             StartGame = false;
             users = new List<string>();
             didntAnswer = new List<string>();
-            userPoints = new Dictionary<string, int>();
-            userAnswers = new Dictionary<Answer, List<string>>();
-            submittedAnswers = new Dictionary<string, Answer>();
+            userPoints = new ConcurrentDictionary<string, int>();
+            userAnswers = new ConcurrentDictionary<Answer, List<string>>();
+            submittedAnswers = new ConcurrentDictionary<string, Answer>();
             QuestionTimer = new System.Timers.Timer();
             QuestionTimer.Interval = 1000;
             QuestionTimer.Elapsed += QuestionTimerOnElapsed;
@@ -226,7 +231,7 @@ namespace Kviz.Services
         private void QuestionTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             Time--;
-            if (Time < 0)
+            if (Time <= 0)
             {
                 RevealAnswer();
             }
@@ -251,7 +256,7 @@ namespace Kviz.Services
         private void LeaderBoardTimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             LeaderBoardUpTime--;
-            if (LeaderBoardUpTime < 0)
+            if (LeaderBoardUpTime <= 0)
             {
                 LeaderBoardTimer.Stop();
                 LeaderBoardUpTime = 5;
@@ -297,13 +302,20 @@ namespace Kviz.Services
 
         public void AddUser(string nickname)
         {
-            users.Add(nickname);
-            NewUserEvent?.Invoke();
+            lock (usersLock) 
+            {
+                users.Add(nickname);
+                NewUserEvent?.Invoke();
+            }
         }
 
         public void RemoveUser(string nickname)
         {
-            users.Remove(nickname);
+            lock(usersLock)
+            {
+                users.Remove(nickname);
+            }
+            
         }
 
         public bool CheckIfFirstJoin(string nickname)

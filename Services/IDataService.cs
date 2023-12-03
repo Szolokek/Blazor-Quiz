@@ -1,5 +1,6 @@
 ﻿using Kviz.Migrations.Tables;
 using Kviz.Model;
+using System.Collections.Concurrent;
 
 namespace Kviz.Services
 {
@@ -16,7 +17,7 @@ namespace Kviz.Services
         public void SetSessionDate(int Id);
         public Task<SessionTable> GetSessionById(int Id);
         public Task<List<SessionTable>> GetSessionsByUserId(int userId);
-        public Task SaveToHistory(int quizHistoryId, Question question, Dictionary<string, Answer> submittedAnswers);
+        public Task SaveToHistory(int quizHistoryId, Question question, ConcurrentDictionary<string, Answer> submittedAnswers);
         public Task<int> InitHistory(string quizName, int sessionId, int userId);
         public Task<List<HistoryTable>> GetHistoriesByUserIdAsync(int userId);
         public Task<QuizHistoryTable> GetNameOfQuiz(int historyId);

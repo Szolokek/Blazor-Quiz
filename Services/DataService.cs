@@ -4,6 +4,7 @@ using Kviz.Model;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 
 namespace Kviz.Services
@@ -160,7 +161,7 @@ namespace Kviz.Services
             session.Date = DateTime.Now;
         }
 
-        public async Task SaveToHistory(int quizHistoryId, Question question, Dictionary<string, Answer> submittedAnswers)
+        public async Task SaveToHistory(int quizHistoryId, Question question, ConcurrentDictionary<string, Answer> submittedAnswers)
         {
             QuestionHistoryTable questionHistoryTable = new QuestionHistoryTable()
             {

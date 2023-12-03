@@ -19,7 +19,7 @@ namespace Kviz.Services
                 var dataService = scope.ServiceProvider.GetRequiredService<IDataService>();
                 var quizService = scope.ServiceProvider.GetRequiredService<QuizService>();
 
-                var sessions = dataService.GetSessions().Result;
+                var sessions = await dataService.GetSessions();
                 foreach (SessionTable session in sessions)
                 {
                     quizService.AddNewSession(session.Id);

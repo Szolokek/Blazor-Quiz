@@ -4,6 +4,7 @@
 @using Kviz.Migrations.Tables
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims;
+@using System.Collections.Concurrent;
 
 
 @page "/creator/game/{sessionId:int}"
@@ -218,7 +219,7 @@
 
     void GetChartSeries()
     {
-        Dictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
+        ConcurrentDictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
         chartData.Clear();
         if (dict != null)
         {
@@ -235,7 +236,7 @@
     }
     void GetChartSeriesTemp()
     {
-        Dictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
+        ConcurrentDictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
         chartData.Clear();
 
         for(int i = 0; i< 1; i++)

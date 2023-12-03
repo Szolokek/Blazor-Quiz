@@ -101,7 +101,7 @@ else
             quizService.Sessions[sessionId].AddUser(nickname!);
             if (quizService.Sessions[sessionId].CheckIfFirstJoin(nickname!))
             {
-                quizService.Sessions[sessionId].userPoints.Add(nickname!, 0);
+                quizService.Sessions[sessionId].userPoints.TryAdd(nickname!, 0);
             }
         }
 
