@@ -4,12 +4,14 @@
 @using Kviz.Migrations.Tables;
 @inject NavigationManager Navigation
 
-<RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:90vh;">
-    <RadzenStack JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
-        <RadzenTextBox class="margin_for_input" Placeholder="Session" Style="width: 90%" @bind-Value="@Session"/>
-        <RadzenTextBox class="margin_for_input" Placeholder="Nickname" Style="width: 90%" @bind-Value="@Nickname"/>
-        <RadzenButton class="rz-ripple margin_for_input" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToNickName()" />
-    </RadzenStack>
+<RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:90vh;" >
+    <RadzenColumn SizeMD="2" SizeSM="10" >
+        <RadzenStack JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
+            <RadzenTextBox class="margin_for_input" Placeholder="Session" Style="width: 90%;" @bind-Value="@Session"/>
+            <RadzenTextBox class="margin_for_input" Placeholder="Nickname" Style="width: 90%;" @bind-Value="@Nickname"/>
+            <RadzenButton class="rz-ripple margin_for_input" Variant="Variant.Filled" ButtonStyle="ButtonStyle.Secondary" Text="Join" Click="() => NavigateToNickName()" Style="width:90%;" />
+        </RadzenStack>
+    </RadzenColumn>
 </RadzenRow>
 <RadzenStack JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
     <div>

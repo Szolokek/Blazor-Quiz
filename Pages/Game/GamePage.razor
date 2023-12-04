@@ -9,7 +9,7 @@
 
 @if (UniqueName)
 {
-    @if (!quizService.Sessions[sessionId].StartGame)
+    @if (!game.StartGame)
     {
         <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Style="width:100%; height:100vh;">
             <h3 style="color:white;">Waiting for host to start the game...</h3>
@@ -18,29 +18,29 @@
     }
     else
     {
-        @if (!quizService.Sessions[sessionId].Closed)
+        @if (!game.Closed)
         {
-            @if (!quizService.Sessions[sessionId].CheckIfUserAlreadyAnswered(nickname!))
+            @if (!game.CheckIfUserAlreadyAnswered(nickname!))
             {
-                @if (@quizService.Sessions[sessionId].GetCurrentQuestion().Type == QuestionType.MultipleChoice)
+                @if (game.GetCurrentQuestion().Type == QuestionType.MultipleChoice)
                 {
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text class="rz-color-white"></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@game.GetCurrentQuestion().Text class="rz-color-white"></RadzenText>
 
                         </RadzenStack>
-                        @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
+                        @foreach (Answer answer in game.GetCurrentAnswers())
                         {
                             <RadzenButton Variant="Variant.Outlined" Text="@answer.Text" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnAnswerSelect(answer))" />
                         }
                     </RadzenStack>
                 }
-                else if (@quizService.Sessions[sessionId].GetCurrentQuestion().Type == QuestionType.ShortAnswer)
+                else if (game.GetCurrentQuestion().Type == QuestionType.ShortAnswer)
                 {
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text class="rz-color-white"></RadzenText>
-                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].TimeAsString class="rz-color-white"></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@game.GetCurrentQuestion().Text class="rz-color-white"></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@game.TimeAsString class="rz-color-white"></RadzenText>
 
                         </RadzenStack>
                         <RadzenTextBox Placeholder="Type answer here..." Style="width: 90%" @bind-Value=@ShortAnswer />
@@ -56,7 +56,7 @@
         }    
         else
         {
-            if (quizService.Sessions[sessionId].CheckIfUserAnsweredCorrectly(nickname!))
+            if (game.CheckIfUserAnsweredCorrectly(nickname!))
             {
                 <RadzenRow style="margin-top: 2rem; background-color: rgba(0,255,0,0.7); border-radius: 1rem;" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
                     <RadzenText class="rz-color-white" TextStyle="TextStyle.H2" TagName="TagName.H3" Text="Correct answer"></RadzenText>
@@ -92,38 +92,45 @@ else
     bool ShowGame = true;
     bool UniqueName = false;
     string ShortAnswer = string.Empty;
+    GameService game;
 
     protected override async Task OnInitializedAsync()
     {
-        if (quizService.Sessions[sessionId].CheckIfNewUser(nickname!))
+        if (quizService.Sessions.ContainsKey(sessionId))
         {
-            UniqueName = true;
-            quizService.Sessions[sessionId].AddUser(nickname!);
-            if (quizService.Sessions[sessionId].CheckIfFirstJoin(nickname!))
-            {
-                quizService.Sessions[sessionId].userPoints.TryAdd(nickname!, 0);
-            }
-        }
+            game = quizService.Sessions[sessionId];
 
-        quizService.Sessions[sessionId].UpdateEvent += async () => await InvokeAsync(() => Update());
-        quizService.Sessions[sessionId].NextQuestionEvent += async () => await InvokeAsync(() => NextQuestion());
-        quizService.Sessions[sessionId].RevealAnswerEvent += async () => await InvokeAsync(() => RevealAnswer());
-        quizService.Sessions[sessionId].StartGameEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        quizService.Sessions[sessionId].QuestionClosedEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        quizService.Sessions[sessionId].TimerCountEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        quizService.Sessions[sessionId].StateChangedEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        await base.OnInitializedAsync();
+
+            if (game.CheckIfNewUser(nickname!))
+            {
+                UniqueName = true;
+                game.AddUser(nickname!);
+                if (game.CheckIfFirstJoin(nickname!))
+                {
+                    game.userPoints.TryAdd(nickname!, 0);
+                }
+            }
+
+            game.UpdateEvent += async () => await InvokeAsync(() => Update());
+            game.NextQuestionEvent += async () => await InvokeAsync(() => NextQuestion());
+            game.RevealAnswerEvent += async () => await InvokeAsync(() => RevealAnswer());
+            game.StartGameEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            game.QuestionClosedEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            game.TimerCountEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            game.StateChangedEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            await base.OnInitializedAsync();
+        }
     }
 
     void OnAnswerSelect(Answer answer)
     {
-        quizService.Sessions[sessionId].AddToUserAnswers(answer, nickname!);
-        quizService.Sessions[sessionId].AddToSubmittedAnswers(answer, nickname!);
+        game.AddToUserAnswers(answer, nickname!);
+        game.AddToSubmittedAnswers(answer, nickname!);
 
     }
     void Update()
     {
-        if (quizService.Sessions[sessionId].CheckIfUserAlreadyAnswered(nickname!))
+        if (game.CheckIfUserAlreadyAnswered(nickname!))
         {
             this.StateHasChanged();
         }
@@ -138,16 +145,16 @@ else
     }
     void OnShortAnswerSubmit(string text)
     {
-        Answer answer = new Answer(text, quizService.Sessions[sessionId].GetCurrentQuestion().CheckIfAnswerIsCorrect(text));
-        quizService.Sessions[sessionId].AddToUserAnswers(answer, nickname!);
-        quizService.Sessions[sessionId].AddToSubmittedAnswers(answer, nickname!);
+        Answer answer = new Answer(text, game.GetCurrentQuestion().CheckIfAnswerIsCorrect(text));
+        game.AddToUserAnswers(answer, nickname!);
+        game.AddToSubmittedAnswers(answer, nickname!);
         
     }
     public void Dispose()
     {
         if (UniqueName)
         {
-            quizService.Sessions[sessionId].RemoveUser(nickname!);
+            game.RemoveUser(nickname!);
         }
     }
 

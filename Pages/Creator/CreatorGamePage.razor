@@ -17,16 +17,16 @@
     <Authorized>
         @if (AuthorizedUser)
         {
-            @if (!@quizService.Sessions[sessionId].GameOver)
+            @if (!@game.GameOver)
             {
                         
     
-                @if (!@quizService.Sessions[sessionId].StartGame)
+                @if (!@game.StartGame)
                 {
                     <RadzenButton Variant="Variant.Outlined" Text="Start Quiz" ButtonStyle="ButtonStyle.Secondary" class="rz-ripple" Style="margin: 10px;" Click="(() => OnStartQuiz())" />
                     <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Users:"></RadzenText>
                     <RadzenRow>
-                        @foreach (string user in quizService.Sessions[sessionId].users)
+                        @foreach (string user in game.users)
                         {
                             <RadzenColumn Size="1">
                                 <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="@user"></RadzenText>
@@ -41,12 +41,12 @@
                     {
 
 
-                        @if (quizService.Sessions[sessionId].leaderBoardView)
+                        @if (game.leaderBoardView)
                         {
                             <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text="Leaderboard:"></RadzenText>
-                            <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].LeaderBoardUpTimeAsString></RadzenText>
+                            <RadzenText class="rz-color-white" TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" Text=@game.LeaderBoardUpTimeAsString></RadzenText>
                             <RadzenStack JustifyContent="JustifyContent.Center">
-                            @foreach (KeyValuePair<string, int> entry in (from entry in quizService.Sessions[sessionId].userPoints orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
+                            @foreach (KeyValuePair<string, int> entry in (from entry in game.userPoints orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
                                 {
                                     <RadzenRow Gap="0.1rem" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
                                         <RadzenCard Style="width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;">
@@ -65,27 +65,27 @@
                         {
                             <RadzenRow AlignItems="AlignItems.Center">
                                 <RadzenColumn Size="10" >
-                                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H3" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetCurrentQuestion().Text></RadzenText>
+                                    <RadzenText class="rz-color-white" TextStyle="TextStyle.H3" TagName="TagName.H3" Text=@game.GetCurrentQuestion().Text></RadzenText>
                                 </RadzenColumn>
                                 <RadzenColumn Size="1">
                                     <RadzenRow>
                                         <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text="Time: " class="rz-color-white"></RadzenText>
-                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].TimeAsString class="rz-color-white"></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@game.TimeAsString class="rz-color-white"></RadzenText>
                                     </RadzenRow>
                                 </RadzenColumn>
                                 <RadzenColumn Size="1">
                                     <RadzenRow Gap="0">
-                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].GetSubmittedAnswers().Count.ToString() class="rz-color-white"></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@game.GetSubmittedAnswers().Count.ToString() class="rz-color-white"></RadzenText>
                                         <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text="/" class="rz-color-white"></RadzenText>
-                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@quizService.Sessions[sessionId].users.Count.ToString() class="rz-color-white"></RadzenText>
+                                        <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" Text=@game.users.Count.ToString() class="rz-color-white"></RadzenText>
                                     </RadzenRow>
                                 </RadzenColumn>
                             </RadzenRow>
                         
                         
-                            @if (@quizService.Sessions[sessionId].GetCurrentQuestion().Type == QuestionType.MultipleChoice)
+                            @if (@game.GetCurrentQuestion().Type == QuestionType.MultipleChoice)
                             {
-                                @foreach (Answer answer in quizService.Sessions[sessionId].GetCurrentAnswers())
+                                @foreach (Answer answer in game.GetCurrentAnswers())
                                 {
                                     <RadzenRow JustifyContent="JustifyContent.Center">
                                         <RadzenCard Style=@AnswerCardStyle(answer.Correct)>
@@ -95,7 +95,7 @@
                                 
                                 }
                             }
-                            else if (@quizService.Sessions[sessionId].GetCurrentQuestion().Type == QuestionType.ShortAnswer)
+                            else if (@game.GetCurrentQuestion().Type == QuestionType.ShortAnswer)
                             {
                             
                             }
@@ -121,7 +121,7 @@
                     <RadzenText class="rz-color-white" TextStyle="TextStyle.H2" TagName="TagName.H3" Text="Game Over"></RadzenText>
                 </RadzenRow>
                 <RadzenStack JustifyContent="JustifyContent.Center">
-                    @foreach (KeyValuePair<string, int> entry in (from entry in quizService.Sessions[sessionId].userPoints orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
+                    @foreach (KeyValuePair<string, int> entry in (from entry in game.userPoints orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value).Take(5))
                     {
                         <RadzenRow Gap="0.1rem" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center">
                             <RadzenCard Style="width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;">
@@ -160,20 +160,26 @@
     int userId;
     int quizHistoryId;
     List<DataItem> chartData = new List<DataItem>();
+    GameService game;
 
 
     protected override async Task OnInitializedAsync()
     {
-        quizService.Sessions[sessionId].TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswerAsnyc());
-        quizService.Sessions[sessionId].LeaderboardEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        quizService.Sessions[sessionId].NextQuestionEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        quizService.Sessions[sessionId].TimerCountEvent += async () => await InvokeAsync(() => OnTimerTick());
-        quizService.Sessions[sessionId].NewUserEvent += async () => await InvokeAsync(() => this.StateHasChanged());
-        quizService.Sessions[sessionId].GameOverEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        if (quizService.Sessions.ContainsKey(sessionId))
+        {
+            game = quizService.Sessions[sessionId];
 
-        GetChartSeries();
-        await AuthorizeUser();
-        await base.OnInitializedAsync();
+            game.TimesUpEvent += async () => await InvokeAsync(() => OnRevealAnswerAsnyc());
+            game.LeaderboardEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            game.NextQuestionEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            game.TimerCountEvent += async () => await InvokeAsync(() => OnTimerTick());
+            game.NewUserEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+            game.GameOverEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+
+            GetChartSeries();
+            await AuthorizeUser();
+            await base.OnInitializedAsync();
+        }
     }
 
     public async Task AuthorizeUser()
@@ -194,12 +200,12 @@
     {
         RevealAnswerButtonDisabled = true;
         this.StateHasChanged();
-        quizService.Sessions[sessionId].RevealAnswer();
+        game.RevealAnswer();
 
     }
     async Task OnNextQuestionAsync()
     {
-        quizService.Sessions[sessionId].CloseQuestion();
+        game.CloseQuestion();
         await SaveToHistory();
         RevealAnswerButtonDisabled = false;
     }
@@ -207,8 +213,8 @@
     {
         SessionTable sessionTable = await dataService.GetSessionById(sessionId);
         quiz = await dataService.GetQuizByIdAsync(sessionTable.Quiz_Id);
-        quizService.Sessions[sessionId].StartGameFirstQuestion(quiz);
-        quizService.Sessions[sessionId].StartGame = true;
+        game.StartGameFirstQuestion(quiz);
+        game.StartGame = true;
         quizHistoryId = await dataService.InitHistory(quiz.Name, sessionId, userId);
     }
     class DataItem
@@ -219,7 +225,7 @@
 
     void GetChartSeries()
     {
-        ConcurrentDictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
+        ConcurrentDictionary<Answer, List<string>> dict = game.UserAnswers;
         chartData.Clear();
         if (dict != null)
         {
@@ -236,7 +242,7 @@
     }
     void GetChartSeriesTemp()
     {
-        ConcurrentDictionary<Answer, List<string>> dict = quizService.Sessions[sessionId].UserAnswers;
+        ConcurrentDictionary<Answer, List<string>> dict = game.UserAnswers;
         chartData.Clear();
 
         for(int i = 0; i< 1; i++)
@@ -259,12 +265,12 @@
 
     async Task SaveToHistory()
     {
-        await dataService.SaveToHistory(quizHistoryId, quizService.Sessions[sessionId].GetCurrentQuestion(), quizService.Sessions[sessionId].GetSubmittedAnswers());
+        await dataService.SaveToHistory(quizHistoryId, game.GetCurrentQuestion(), game.GetSubmittedAnswers());
     }
 
     public bool CategoryAxisVisibility()
     {
-        if (quizService.Sessions[sessionId].Closed)
+        if (game.Closed)
         {
             return true;
         }
@@ -276,7 +282,7 @@
 
     public string AnswerCardStyle(bool correct)
     {
-        if (!quizService.Sessions[sessionId].Closed)
+        if (!game.Closed)
         {
             return "width:70%; background-color: rgb(120, 120, 120, 0.3); margin-bottom: 1rem; text-align: center;";
         }
